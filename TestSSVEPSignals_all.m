@@ -1,0 +1,357 @@
+%% script to check for SSVEP signals
+clearvars
+
+p.pathin_eeg = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\raw\';
+p.pathin_behavior = '\\psyall2.misc.intern.uni-leipzig.de\experimental_data\2024_FShiftPerIrr\behavior\';
+p.subs = {'VP01';'VP02';'VP03';'VP04'};
+p.freqs = [17 20 23 26 29];
+p.chanlocs_path = 'C:\Users\psy05cvd\Dropbox\work\matlab\Auswertungsskripte\Analyzer_G\ChanLocs\BioSemi64_1020.epf';
+
+p.events = {    [10 11 12 16 17 18 19]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
+                [20 21 22 26 27 28 29]; ... %RDK2 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
+                [30 31 32 36 37 38 39]; ... %RDK1 attended; RDK1 and RDK3 colors in periphery peri attended + irrelevant
+                [40 41 42 46 47 48 49]; ... %RDK2 attended; RDK2 and RDK3 colors in periphery peri attended + irrelevant
+                [50 51 52 56 57 58 59]; ... %RDK1 attended; RDK2 and RDK3 colors in periphery peri unattended + irrelevant
+                [60 61 62 66 67 68 69]};    %RDK2 attended; RDK1 and RDK3 colors in periphery peri unattended + irrelevant
+% p.events = {    [10 ]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
+%                 [20 ]; ... %RDK2 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
+%                 [30 ]; ... %RDK1 attended; RDK1 and RDK3 colors in periphery peri attended + irrelevant
+%                 [40 ]; ... %RDK2 attended; RDK2 and RDK3 colors in periphery peri attended + irrelevant
+%                 [50 ]; ... %RDK1 attended; RDK2 and RDK3 colors in periphery peri unattended + irrelevant
+%                 [60 ]};    %RDK2 attended; RDK1 and RDK3 colors in periphery peri unattended + irrelevant
+p.epoch = [-1 2];
+p.epoch2an = [-1 2];
+p.epoch2an = [0.5 2];
+p.resample = 256;
+pl.conlabel_att = {'att RDK1';'att RDK2'; 'att RDK1';'att RDK2'; 'att RDK1';'att RDK2'};
+pl.conlabel_periRDK = {'RDK3 RDK4';'RDK3 RDK4'; 'RDK3 RDK5'; 'RDK4 RDK5';'RDK4 RDK5'; 'RDK3 RDK5'};
+pl.conRDKpresent = logical([1 1 1 1 0; 1 1 1 1 0; 1 1 1 0 1; 1 1 0 1 1; 1 1 0 1 1; 1 1 1 0 1]);
+
+FFT.res = 2^14;
+
+%% read in data
+for i_sub = 1:numel(p.subs)
+
+    % load data | read in files
+    clear EEG
+    temp.files = dir(sprintf('%s%s*.bdf',p.pathin_eeg,p.subs{i_sub}));
+
+    for i_fi = 1:numel(temp.files)
+        EEG(i_fi)=pop_readbdf(sprintf('%s%s',p.pathin_eeg,temp.files(i_fi).name),[],73,[]);
+    end
+    if numel(EEG)>1,EEG=pop_mergeset(EEG,1:numel(EEG),0); end
+    %pop_eegplot(EEG,1,1,1)
+
+    % replace boundary trigger by 999999
+    if sum(strcmp({EEG.event.type},'boundary'))~=0
+        EEG.event(strcmp({EEG.event.type},'boundary')).type = '9999999';
+        for i_ev = 1:numel(EEG.event)
+            EEG.event(i_ev).type = str2num(EEG.event(i_ev).type);
+        end
+    end
+
+
+
+
+
+
+    
+    % select only EEG channels
+    EEG = pop_select(EEG,'channel',1:64);
+    % load channel info
+    EEG.chanlocs = pop_chanedit(EEG.chanlocs,'load',{p.chanlocs_path,'filetype','besa'});
+
+    % resample
+    EEG_rs=pop_resample(EEG,p.resample);
+    % pop_eegplot(EEG_rs,1,1,1)
+
+    % check events
+    t.uniqevents = unique([EEG.event.type]);
+    t.uniqevents_num = [t.uniqevents' cellfun(@(x) sum([EEG.event.type]==x),num2cell(t.uniqevents))'];
+
+    % epoch
+    EEG_rs_ep = pop_epoch(EEG_rs,num2cell(unique(cell2mat(p.events))),p.epoch);
+    % pop_eegplot(EEG_rs_ep,1,1,1)
+
+    % remove linear drift and offset of EEG signals
+    EEG_rs_ep_detr = eegF_Detrend(EEG_rs_ep); %
+    % pop_eegplot(EEG_rs_ep_detr,1,1,1)
+
+    % average reference
+    EEG_rs_ep_detr_avr=pop_reref(EEG_rs_ep_detr,[],'refstate',0);
+    % pop_eegplot(EEG_rs_ep_detr_avr,1,1,1)
+
+    % testplot
+    %     figure; plot(EEG_rs_ep_avr.times, mean(EEG_rs_ep_avr.data(29,:,:),3))
+    % calculate FFT
+    % detrend first
+    EEG_rs_ep_detr_avr_detr = eegF_Detrend(EEG_rs_ep_detr_avr,[]);
+%     pop_eegplot(EEG_rs_ep_detr_avr_detr,1,1,1)
+    temp.data=mean(EEG_rs_ep_detr_avr_detr.data,3);
+    if i_sub==1 
+        FFT.data = nan(EEG_rs_ep_detr_avr_detr.nbchan,FFT.res,numel(p.subs));
+        FFT.data2 = nan(EEG_rs_ep_detr_avr_detr.nbchan,FFT.res,size(p.events,1),numel(p.subs));
+    end
+    FFT.data(:,:,i_sub)=abs(fft(temp.data,FFT.res,2))*2/size(temp.data,2);
+
+    % FFT for conditions
+    for i_con = 1:size(p.events,1)
+        % index epochs to keep
+        EEG_rs_ep_detr_avr_detr_sel = pop_selectevent( EEG_rs_ep_detr_avr_detr, 'type',p.events{i_con,:} ,...
+            'deleteevents','off','deleteepochs','on','invertepochs','off');
+        %     pop_eegplot(EEG_rs_ep_detr_avr_detr,1,1,1)
+        EEG_rs_ep_detr_avr_detr_sel = pop_select(EEG_rs_ep_detr_avr_detr_sel,'time',p.epoch2an);
+        temp.data=mean(EEG_rs_ep_detr_avr_detr_sel.data,3);
+        FFT.data2(:,:,i_con,i_sub)=abs(fft(temp.data,FFT.res,2))*2/size(temp.data,2);
+    end
+
+    % frequencies
+    FFT.freqs = ((0:size(FFT.data,2)-1)/size(FFT.data,2)) * EEG_rs_ep_detr_avr_detr.srate;
+
+    % figure
+    %     figure; plot(FFT.freqs,FFT.data(29,:,1)); xlim([0 50])
+
+    % electrode labels
+    FFT.electrodes = EEG_rs_ep_detr_avr_detr_sel.chanlocs;
+
+    %% behavior
+    % behavior (loads latest file)
+    t.files = dir(fullfile(p.pathin_behavior,sprintf('%s_timing*.mat',p.subs{i_sub})));
+    [t.val t.idx ]=max([t.files.datenum]);
+    behavior = load(fullfile(p.pathin_behavior,t.files(t.idx).name));
+
+    % extract relevant RDK information
+    FFT.RDK(i_sub).RDKnum = [1:5];
+    FFT.RDK(i_sub).RDKpos = {'central';'central';'periphery';'periphery';'periphery'};
+    FFT.RDK(i_sub).RDKtaskrelevance = {'relevant';'relevant';'irrelevant';'irrelevant';'irrelevant'};
+    FFT.RDK(i_sub).RDKcolnames = {behavior.RDK.RDK.colnames};
+    FFT.RDK(i_sub).RDKcolsimilarities = {'RDK1';'RDK2';'RDK1';'RDK2';'unique'};
+    FFT.RDK(i_sub).RDKfreqs = [behavior.RDK.RDK.freq];
+    if behavior.RDK.RDK(3).centershift(1)>0
+        FFT.RDK(i_sub).peripherRDKpos = 'right';
+    else
+        FFT.RDK(i_sub).peripherRDKpos = 'left';
+    end
+
+end
+
+
+
+
+%% graphical analysis
+% topos
+idx_pl = 1;
+figs=figure;
+set(gcf,'Position',[100 100 600 900],'PaperPositionMode','auto')
+pl.freqrange = [-0.1 0.1];
+for i_freq = 1:numel(p.freqs)
+    for i_sub = 1:numel(p.subs)
+        % extract data
+
+        % index frequencies to plot
+        pl.freq_i = dsearchn(FFT.freqs', (p.freqs(i_freq)+pl.freqrange)');
+        pl.data = squeeze(mean(FFT.data(:,pl.freq_i(1):pl.freq_i(2),i_sub),[2,3]));
+        pl.clim = [0 max(pl.data(:))];
+
+        % index RDK 2 plot
+        t.rdkidx = find(FFT.RDK(i_sub).RDKfreqs==p.freqs(i_freq));
+
+        subplot(numel(p.freqs),numel(p.subs),idx_pl)
+        topoplot(pl.data, EEG.chanlocs(1:64), ...
+            'shading', 'flat', 'numcontour', 0, 'maplimits',pl.clim,'conv','on','colormap',fake_parula,'whitebk','On');
+        %          topoplot( pl.data(:,i_data), EEG.chanlocs(1:64), ...
+        %             'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','on','colormap',inferno,'whitebk','On');
+        title(sprintf('sub %1.0f | %1.1f Hz; \nRDK%1.0f %s %s',...
+            i_sub, p.freqs(i_freq), FFT.RDK(i_sub).RDKnum( t.rdkidx), FFT.RDK(i_sub).RDKpos{t.rdkidx}, ...
+            FFT.RDK(i_sub).RDKcolnames{t.rdkidx}),'FontSize',8)
+        idx_pl = idx_pl+1;
+
+        h.cb = colorbar;
+        t.pos = get(h.cb,'Position');
+        set(h.cb,'Position',[t.pos(1)+0.08 t.pos(2)+(1/6)*t.pos(4) t.pos(3) t.pos(4)*2/3 ])
+    end
+end
+
+%% topos for conditions
+pl.freqrange = [-0.1 0.1];
+for i_sub = 1:numel(p.subs)
+    idx_pl = 1;
+    figs=figure;
+    set(gcf,'Position',[100 100 1200 900],'PaperPositionMode','auto')
+    for i_freq = 1:numel(p.freqs)
+        for i_con = 1:numel(pl.conlabel_att)
+            % extract data
+
+            % index frequencies to plot
+            pl.freq_i = dsearchn(FFT.freqs', (p.freqs(i_freq)+pl.freqrange)');
+            pl.data = squeeze(mean(FFT.data2(:,pl.freq_i(1):pl.freq_i(2),i_con,i_sub),[2,3,4]));
+            pl.data2 = squeeze(mean(FFT.data2(:,pl.freq_i(1):pl.freq_i(2),:,i_sub),[2,4]));
+%             pl.clim = [0 max(pl.data(:))];
+            pl.clim = [0 max(pl.data2(:))];
+
+            % index RDK 2 plot
+            t.rdkidx = find(FFT.RDK(i_sub).RDKfreqs==p.freqs(i_freq));
+
+            subplot(numel(p.freqs),numel(pl.conlabel_att),idx_pl)
+            topoplot(pl.data, EEG.chanlocs(1:64), ...
+                'shading', 'flat', 'numcontour', 0, 'maplimits',pl.clim,'conv','on','colormap',fake_parula,'whitebk','On');
+            %          topoplot( pl.data(:,i_data), EEG.chanlocs(1:64), ...
+            %             'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','on','colormap',inferno,'whitebk','On');
+            title(sprintf('sub %1.0f | %1.1f Hz RDK%1.0f sim to %s\n%s | in peri: %s',...
+                i_sub, p.freqs(i_freq), FFT.RDK(i_sub).RDKnum( t.rdkidx), FFT.RDK(i_sub).RDKcolsimilarities{t.rdkidx}, ...
+                pl.conlabel_att{i_con}, pl.conlabel_periRDK{i_con}),'FontSize',6)
+            idx_pl = idx_pl+1;
+
+            h.cb = colorbar;
+            t.pos = get(h.cb,'Position');
+%             set(h.cb,'Position',[t.pos(1)+0.08 t.pos(2)+(1/6)*t.pos(4) t.pos(3) t.pos(4)*2/3 ])
+        end
+    end
+end
+
+%% topos for frequencies when stimuli are actually present
+idx_pl = 1;
+figs=figure;
+set(gcf,'Position',[100 100 600 900],'PaperPositionMode','auto')
+pl.freqrange = [-0.1 0.1];
+for i_freq = 1:numel(p.freqs)
+    for i_sub = 1:numel(p.subs)
+        % extract data
+        
+        % index RDK 2 plot
+        t.rdkidx = find(FFT.RDK(i_sub).RDKfreqs==p.freqs(i_freq));
+
+
+        % index frequencies to plot
+        pl.freq_i = dsearchn(FFT.freqs', (p.freqs(i_freq)+pl.freqrange)');
+        pl.data = squeeze(mean(FFT.data2(:,pl.freq_i(1):pl.freq_i(2),pl.conRDKpresent(:,t.rdkidx),i_sub),[2,3]));
+        pl.clim = [0 max(pl.data(:))];
+
+        % index RDK 2 plot
+        t.rdkidx = find(FFT.RDK(i_sub).RDKfreqs==p.freqs(i_freq));
+
+        subplot(numel(p.freqs),numel(p.subs),idx_pl)
+        topoplot(pl.data, EEG.chanlocs(1:64), ...
+            'shading', 'flat', 'numcontour', 0, 'maplimits',pl.clim,'conv','on','colormap',fake_parula,'whitebk','On');
+        %          topoplot( pl.data(:,i_data), EEG.chanlocs(1:64), ...
+        %             'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','on','colormap',inferno,'whitebk','On');
+        title(sprintf('sub %1.0f | %1.1f Hz; \nRDK%1.0f %s %s',...
+            i_sub, p.freqs(i_freq), FFT.RDK(i_sub).RDKnum( t.rdkidx), FFT.RDK(i_sub).RDKpos{t.rdkidx}, ...
+            FFT.RDK(i_sub).RDKcolnames{t.rdkidx}),'FontSize',8)
+        idx_pl = idx_pl+1;
+
+        h.cb = colorbar;
+        t.pos = get(h.cb,'Position');
+        set(h.cb,'Position',[t.pos(1)+0.08 t.pos(2)+(1/6)*t.pos(4) t.pos(3) t.pos(4)*2/3 ])
+    end
+end
+
+%% plot spectra for conditions in which stimuli were presented
+pl.elec2plot = {{'PO3';'POz';'PO4';'O1';'Oz';'O2';'I1';'Iz';'I2'}, {'central'}; ...
+                {'P5';'PO3';'P7';'PO7';'O1';'P9';'I1'}, {'right'}; ...
+                {'P6';'PO5';'P8';'PO8';'O2';'P10';'I2'}, {'left'}};
+% pl.elec2plot = {{'PO3';'POz';'PO4';'O1';'Oz';'O2';'I1';'Iz';'I2'}, {'central'}; ...
+%                 {'P8';'PO8'}, {'left'}; ...
+%                 {'P7';'PO7'}, {'right'}};
+pl.elec2plot_i = cellfun(@(y)...
+    logical(sum(cell2mat(cellfun(@(x) strcmp({FFT.electrodes.labels},x), y, 'UniformOutput',false)),1)), ...
+    pl.elec2plot(:,1),'UniformOutput',false);
+
+pl.color = [0.9 0.1 0.1; 0.1 0.1 0.8; 0.1 0.4 0.8; 0.1 0.8 0.4];
+
+% first extract data for three peripheral RDKs and both central RDKs
+pl.data = nan(size(FFT.data2,2),4,numel(p.subs));
+pl.legend = {};
+for i_sub = 1:numel(p.subs)
+    t.elecidx = strcmp([pl.elec2plot{:,2}],'central');
+    pl.data(:,1,i_sub) = squeeze(mean(FFT.data2(pl.elec2plot_i{t.elecidx},:,:),[1 3]));
+    pl.legend{i_sub,1} = 'central RDK1+RDK2';
+    for i_RDK = 1:3 % for peripheral RDKs
+        t.elecidx = strcmp([pl.elec2plot{:,2}],FFT.RDK(i_sub).peripherRDKpos);
+        pl.data(:,1+i_RDK,i_sub) = squeeze(mean(FFT.data2(pl.elec2plot_i{t.elecidx},:,pl.conRDKpresent(2+i_RDK,:),i_sub),[1 3]));
+        pl.legend{i_sub,1+i_RDK} = sprintf('RDK%1.0f %1.1fHz',i_RDK,FFT.RDK(i_sub).RDKfreqs(i_RDK+2));
+    end
+    
+end
+
+for i_sub = 1:numel(p.subs)
+    figs=figure;
+    set(gcf,'Position',[100 100 800 500],'PaperPositionMode','auto')
+    for i_line = 1:size(pl.data,2)
+        plot(FFT.freqs, pl.data(:,i_line,i_sub),'Color',pl.color(i_line,:),'LineWidth',1); hold on
+    end
+    xlim([0 50]);
+    legend(pl.legend(i_sub,:))
+    xlabel('frequency in Hz')
+    ylabel('amplitude in \muV')
+
+%     h.a1 = axes('position',[0.45 0.82 0.1 0.1],'Visible','off');
+% topoplot(find(pl.elec2plot_i),EEG.chanlocs(1:64),'style','blank','electrodes', 'on','whitebk','on',...
+%     'emarker2',{find(pl.elec2plot_i),'o','r',5,1});
+end
+
+
+
+
+
+
+%% spectra #1
+% pl.elec2plot = {'Oz'};
+pl.elec2plot = {'PO3';'POz';'PO4';'O1';'Oz';'O2';'I1';'Iz';'I2'};
+pl.elec2plot_i=logical(sum(cell2mat(cellfun(@(x) strcmp({EEG.chanlocs(1:64).labels},x), pl.elec2plot, 'UniformOutput',false)),1));
+
+figs=figure;
+set(gcf,'Position',[100 100 900 800],'PaperPositionMode','auto')
+subplot(3,1,1)
+plot(FFT.freqs,squeeze(mean(mean(FFT.data(pl.elec2plot_i,:,:,:),1),4)));
+xlim([0 50])
+xlabel('frequency in Hz')
+ylabel('amplitude in \muV')
+legend(p.descr,'Location','East','Orientation','vertical')
+
+% draw topography with electrode positions
+h.a1 = axes('position',[0.45 0.82 0.1 0.1],'Visible','off');
+topoplot(find(pl.elec2plot_i),EEG.chanlocs(1:64),'style','blank','electrodes', 'on','whitebk','on',...
+    'emarker2',{find(pl.elec2plot_i),'o','r',5,1});
+
+for i_con = 1:2
+    subplot(3,1,1+i_con)
+%     plot(FFT.freqs,squeeze(mean(FFT.data(pl.elec2plot_i,:,i_con,:),1)),'Color',[0.7 0.7 0.7]);
+    plot(FFT.freqs,squeeze(mean(FFT.data(pl.elec2plot_i,:,i_con,:),1)));
+    hold on
+    plot(FFT.freqs,squeeze(mean(mean(FFT.data(pl.elec2plot_i,:,i_con,:),1),4)),'Color','k','LineWidth',1);
+    xlim([15 35])
+    ylim([0 1])
+    xlabel('frequency in Hz')
+    ylabel('amplitude in \muV')
+    title(p.descr{i_con})
+end
+
+% spectra #2
+% pl.elec2plot = {'Oz'};
+pl.elec2plot = {'PO3';'POz';'PO4';'O1';'Oz';'O2';'I1';'Iz';'I2'};
+pl.elec2plot_i=logical(sum(cell2mat(cellfun(@(x) strcmp({EEG.chanlocs(1:64).labels},x), pl.elec2plot, 'UniformOutput',false)),1));
+
+figs=figure;
+set(gcf,'Position',[100 100 900 800],'PaperPositionMode','auto')
+for i_data = 1:size(FFT.data2,3)
+    subplot(size(FFT.data2,3),1,i_data)
+    plot(FFT.freqs,squeeze(mean(mean(FFT.data2(pl.elec2plot_i,:,i_data,:,:),1),5)));
+%     xlim([0 50])
+    xlim([15 35])
+    ylim([0 1])
+    xlabel('frequency in Hz')
+    ylabel('amplitude in \muV')
+    
+    title(p.descr(i_data))
+    if i_data == 1;
+        % draw topography with electrode positions
+        h.a1 = axes('position',[0.75 0.75 0.15 0.15],'Visible','off');
+        topoplot(find(pl.elec2plot_i),EEG.chanlocs(1:64),'style','blank','electrodes', 'on','whitebk','on',...
+            'emarker2',{find(pl.elec2plot_i),'o','r',5,1});
+    end
+end
+pl.legendtext = cellfun(@(x,y) sprintf('attend [%0.2f %0.2f %0.2f]; %1.2f Hz', x(1,1:3), y),...
+    {BEH.RDK.RDK(1:2).col},{BEH.RDK.RDK(1:2).freq},'UniformOutput',false);
+
+legend(pl.legendtext,'Location','East','Orientation','vertical')

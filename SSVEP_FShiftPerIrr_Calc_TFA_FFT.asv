@@ -1,11 +1,15 @@
 %% parameters
 clearvars
-F.PathInEEG             = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\epoch\';
-F.PathInBehavior        = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\behavior\';
-F.PathInSCADS           = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\SCADS\';
-F.PathOut               = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\TFA'; % with FWHM 0.5
-F.subjects              = arrayfun(@(x) sprintf('%02.0f',x),1:30,'UniformOutput',false)';
-F.sub2use               = [1:40];%:53;
+F.Pathlocal             = 'E:\work\data\SSVEP_FShift_Probabil\';
+F.Pathlocal             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2023_FShift_Probabil\';
+
+
+F.PathInEEG             = fullfile(F.Pathlocal, 'eeg\epoch\');
+F.PathInBehavior        = fullfile(F.Pathlocal, 'behavior\raw\');
+F.PathInSCADS           = fullfile(F.Pathlocal, 'eeg\SCADS\');
+F.PathOut               = fullfile(F.Pathlocal, 'eeg\tfa\'); % with FWHM 0.5
+F.subjects              = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput',false)';
+F.sub2use               = [1:4];%:53;
 
 F.trigger               = {[10 ]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
                             [20 ]; ... %RDK2 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
@@ -20,13 +24,14 @@ F.Trials2Consider       = [0 1]; % trials to consider, i.e.  [0 1] all; [0.5 1] 
 F.TotTrialNum           = 600; % total number of trials [without events]
 
 %F.TFAfreqs              = [5:(1/6):40];
-F.TFAfreqs              = [2:0.2:45];
+F.TFAfreqs              = [2:0.2:33];
 F.TFAFlag               = [2]; % 1=wavelet; 2=gabor
 F.TFAepoch              = [-1.5 2.5];
 F.CSD_flag              = 1; % 0 = no; 1 = yes
 
-F.FFT_timewins          = {[-1 0]; [0 1]; [0.5 1.5]; [1 2]};
-F.FFT_freqres           = 16384;
+F.FFT_timewins          = {[-1 0]; [0.5 1.5]; [1 2]};
+F.FFT_freqres           = 16384/2;
+F.FFT_freqres           = 2^12;
 
 
 %% start processing
@@ -60,7 +65,11 @@ for i_sub = 1:numel(F.sub2use)
     %% do csd transform
     if F.CSD_flag==1
         if  i_sub == 1 % calculate CSD matrix
-            CSD.chanmat=ExtractMontage('C:\Users\psy05cvd\Dropbox\work\matlab\software\toolboxes\CSD\resource\10-5-System_Mastoids_EGI129.csd',{EEG.chanlocs.labels}');
+            try
+                CSD.chanmat=ExtractMontage('C:\Users\psy05cvd\Dropbox\work\matlab\software\toolboxes\CSD\resource\10-5-System_Mastoids_EGI129.csd',{EEG.chanlocs.labels}');
+            catch
+                CSD.chanmat=ExtractMontage('C:\Users\EEG\Documents\MATLAB\christopher\general_functions\CSD\resource\10-5-System_Mastoids_EGI129.csd',{EEG.chanlocs.labels}');
+            end
             [CSD.G,CSD.H] = GetGH(CSD.chanmat);
         end
         fprintf(1,'\n###\ncalculating CSD transform\n###\n')

@@ -8,17 +8,19 @@
 
 %% General Definitions 
 clearvars
-p.path=             'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\';
+% p.path=             'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\';
+p.path=             '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\';
 p.bdf_path=         [p.path 'eeg\raw\'];
 p.set_path=         [p.path 'eeg\set\'];
 p.epoch_path=       [p.path 'eeg\epoch\'];
 p.scads_path=       [p.path 'eeg\SCADS\'];
-p.chanlocs_path=    ['C:\Users\psy05cvd\Dropbox\work\matlab\Auswertungsskripte\Analyzer_G\ChanLocs\BioSemi64_1020.epf'];
+% p.chanlocs_path=    'C:\Users\psy05cvd\Dropbox\work\matlab\Auswertungsskripte\Analyzer_G\ChanLocs\BioSemi64_1020.epf';
+p.chanlocs_path=    'C:\Users\EEG\Documents\MATLAB\lab_library\BS_Chanlocs\BioSemi64_1020.epf';
 p.mean_path=        [p.path 'EEG\mean\'];
 p.exp_name=         'SSVEP_FShiftPerIrr';
 p.subs=             arrayfun(@(x) sprintf('%02.0f',x),1:40,'UniformOutput',false)';
 % from 4 onwards: same design
-p.subs2use=         [1:4];%
+p.subs2use=         [5];%
 % p.subs2use=         [23];%
 p.part=             {'_1';'_2'};
 % p.events =          {[10 11 12 16 17 18 19]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended

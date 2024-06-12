@@ -9,7 +9,7 @@ F.PathInBehavior        = fullfile(F.Pathlocal, 'behavior\');
 F.PathInSCADS           = fullfile(F.Pathlocal, 'eeg\SCADS\');
 F.PathOut               = fullfile(F.Pathlocal, 'eeg\tfa\'); % with FWHM 0.5
 F.subjects              = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput',false)';
-F.sub2use               = [5];%:53;
+F.sub2use               = [6:13 15:18];%:53;
 
 F.trigger               = {[10 ]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
                             [20 ]; ... %RDK2 attended; RDK1 and RDK2 colors in periphery peri attended + unattended

@@ -20,9 +20,9 @@ p.mean_path=        [p.path 'EEG\mean\'];
 p.exp_name=         'SSVEP_FShiftPerIrr';
 p.subs=             arrayfun(@(x) sprintf('%02.0f',x),1:40,'UniformOutput',false)';
 % from 4 onwards: same design
-p.subs2use=         [5];%
+p.subs2use=         [6:13 16:18];%
 % p.subs2use=         [23];%
-p.part=             {'_1';'_2'};
+p.part=             {'_1';'_2';'_3'};
 % p.events =          {[10 11 12 16 17 18 19]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
 %                     [20 21 22 26 27 28 29]; ... %RDK2 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
 %                     [30 31 32 36 37 38 39]; ... %RDK1 attended; RDK1 and RDK3 colors in periphery peri attended + irrelevant
@@ -70,7 +70,7 @@ for i_sub=1:numel(p.subs2use)
         
         % replace boundary trigger by 999999
         if sum(strcmp({EEG.event.type},'boundary'))~=0
-            EEG.event(strcmp({EEG.event.type},'boundary')).type = '9999999';
+            [EEG.event(strcmp({EEG.event.type},'boundary')).type] = deal('9999999');
             for i_ev = 1:numel(EEG.event)
                 EEG.event(i_ev).type = str2num(EEG.event(i_ev).type);
             end

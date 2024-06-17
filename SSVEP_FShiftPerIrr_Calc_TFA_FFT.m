@@ -16,7 +16,7 @@ F.trigger               = {[10 ]; ... %RDK1 attended; RDK1 and RDK2 colors in pe
                             [30 ]; ... %RDK1 attended; RDK1 and RDK3 colors in periphery peri attended + irrelevant
                             [40 ]; ... %RDK2 attended; RDK2 and RDK3 colors in periphery peri attended + irrelevant
                             [50 ]; ... %RDK1 attended; RDK2 and RDK3 colors in periphery peri unattended + irrelevant
-                            [60 ]};
+                            [60 ]};  %RDK2 attended; RDK1 and RDK3 colors in periphery peri unattended + irrelevant
 
 F.EEGChans              = 64;
 

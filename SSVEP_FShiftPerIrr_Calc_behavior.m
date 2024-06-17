@@ -4,7 +4,7 @@ clearvars
 p.path =                'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\behavior\';
 p.path =                '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\behavior\';
 p.subs=                 arrayfun(@(x) sprintf('%02.0f',x),1:30,'UniformOutput',false)';
-p.subs2use=             [1:5];% 
+p.subs2use=             [1:13 15:18];% 
 % p.subs2use =            [1 3 4 5];
 % p.subs2use =            [5 6 7 8 9 10 12 13 18 19 20 21 22 23 24 25];
 p.responsewin =         [0.2 1]; % according to p.targ_respwin from run_posnalpha
@@ -96,8 +96,17 @@ end
 
 %% interim statistics
 response_events_table = struct2table(response_events);
-grpstats(response_events_table, ["participant","response"],'numel')
+t.dat = grpstats(response_events_table, ["participant","response"],'numel');
+t.dat2 = grpstats(response_events_table, ["participant","response"],'mean',"DataVars",["RT"]);
 
+t.idx = strcmp(t.dat.response,'FA_proper');
+[t.dat.participant(1:4:end) t.dat.GroupCount(strcmp(t.dat.response,'FA_proper')) t.dat.GroupCount(strcmp(t.dat.response,'CR'))]
+mean(100*[t.dat.GroupCount(strcmp(t.dat.response,'FA_proper'))./(t.dat.GroupCount(strcmp(t.dat.response,'CR')) + ...
+    t.dat.GroupCount(strcmp(t.dat.response,'FA_proper')))])
+
+t.dat.GroupCount(strcmp(t.dat.response,'hit'))./(t.dat.GroupCount(strcmp(t.dat.response,'hit'))+t.dat.GroupCount(strcmp(t.dat.response,'miss')))
+
+mean(t.dat2.mean_RT(strcmp(t.dat.response,'hit')))
 
 %% summary statistics/descriptives
 response_events_table = struct2table(response_events);

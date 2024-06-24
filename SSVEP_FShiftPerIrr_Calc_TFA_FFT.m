@@ -10,7 +10,9 @@ F.PathInSCADS           = fullfile(F.Pathlocal, 'eeg\SCADS\');
 F.PathOut               = fullfile(F.Pathlocal, 'eeg\tfa\'); % with FWHM 0.5
 F.subjects              = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput',false)';
 % F.sub2use               = [6:13 15:18];%:53;
-F.sub2use               = [19 20 21];%
+F.sub2use               = [22 23];%
+
+% changed experiment from participant 22 onwards (stimuli isoluminant to background
 
 F.trigger               = {[10 ]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
                             [20 ]; ... %RDK2 attended; RDK1 and RDK2 colors in periphery peri attended + unattended

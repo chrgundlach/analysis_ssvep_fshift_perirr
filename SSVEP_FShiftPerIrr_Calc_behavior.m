@@ -4,9 +4,9 @@ clearvars
 p.path =                'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\behavior\';
 p.path =                '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\behavior\';
 p.subs=                 arrayfun(@(x) sprintf('%02.0f',x),1:30,'UniformOutput',false)';
-p.subs2use=             [1:13 15:18];% 
-% p.subs2use =            [1 3 4 5];
-% p.subs2use =            [5 6 7 8 9 10 12 13 18 19 20 21 22 23 24 25];
+% p.subs2use=             [1:13 15:21];% 
+% changed experiment from participant 22 onwards (stimuli isoluminant to background
+p.subs2use=             [22:23];%
 p.responsewin =         [0.2 1]; % according to p.targ_respwin from run_posnalpha
 
 p.eventtype =           {'target';'distractor'};

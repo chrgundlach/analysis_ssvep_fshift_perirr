@@ -4,10 +4,14 @@ F.PathInEEG             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_
 
 F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput',false)';
 F.Subs2use              = [1:13 15:21];
+% changed experiment from participant 22 onwards (stimuli isoluminant to
+% background and used other frequencies
+F.Subs2use              = [22:23];
                         
 F.TFA.baseline          = [-500 -250];
 
-F.SSVEP_Freqs           = [17 20 23 26 29];
+F.SSVEP_Freqs           = [17 20 23 26 29]; % sub 1 to 21
+F.SSVEP_Freqs           = [14 17 20 23 26]; % sub 22 onwars
 F.RDK_pos               = [0 -255 255];
 F.RDK_pos_label         = {'center';'left';'right'};
 
@@ -97,8 +101,8 @@ pl.elec2plot_i=cellfun(@(y) ...
     pl.elec2plot(:,1), 'UniformOutput', false);
 
 
-pl.time2plot = [3];
-pl.freq2plot=F.SSVEP_Freqs(5);
+pl.time2plot = [1];
+pl.freq2plot=F.SSVEP_Freqs(4);
 pl.sub2plot = 1:numel(F.Subs2use);
 
 % extract data
@@ -159,7 +163,7 @@ topoplot(find(any(cell2mat(pl.elec2plot_i))),TFA(1).electrodes(1:64),'style','bl
 %% plot Grand Mean FFT data | topoplot for positions (as frequencies are random)
 pl.time2plot = [1:3];
 pl.time2plot = [1];
-pl.pos2plot='center';
+% pl.pos2plot='center';
 % pl.pos2plot='right';
 % pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];

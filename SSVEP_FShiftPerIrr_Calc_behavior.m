@@ -100,7 +100,9 @@ t.dat = grpstats(response_events_table, ["participant","response"],'numel');
 t.dat2 = grpstats(response_events_table, ["participant","response"],'mean',"DataVars",["RT"]);
 
 t.idx = strcmp(t.dat.response,'FA_proper');
-[t.dat.participant(1:4:end) t.dat.GroupCount(strcmp(t.dat.response,'FA_proper')) t.dat.GroupCount(strcmp(t.dat.response,'CR'))]
+[t.dat.participant(1:4:end) t.dat.GroupCount(strcmp(t.dat.response,'FA_proper')) t.dat.GroupCount(strcmp(t.dat.response,'CR')) ...
+    100*[t.dat.GroupCount(strcmp(t.dat.response,'FA_proper'))./(t.dat.GroupCount(strcmp(t.dat.response,'CR')) + ...
+    t.dat.GroupCount(strcmp(t.dat.response,'FA_proper')))]]
 mean(100*[t.dat.GroupCount(strcmp(t.dat.response,'FA_proper'))./(t.dat.GroupCount(strcmp(t.dat.response,'CR')) + ...
     t.dat.GroupCount(strcmp(t.dat.response,'FA_proper')))])
 

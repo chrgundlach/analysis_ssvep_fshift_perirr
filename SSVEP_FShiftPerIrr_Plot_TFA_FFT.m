@@ -3,7 +3,7 @@ clearvars
 F.PathInEEG             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\EEG\TFA'; % with FWHM 0.5
 
 F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput',false)';
-F.Subs2use              = [1:13 15:18];
+F.Subs2use              = [1:13 15:21];
                         
 F.TFA.baseline          = [-500 -250];
 
@@ -159,9 +159,9 @@ topoplot(find(any(cell2mat(pl.elec2plot_i))),TFA(1).electrodes(1:64),'style','bl
 %% plot Grand Mean FFT data | topoplot for positions (as frequencies are random)
 pl.time2plot = [1:3];
 pl.time2plot = [1];
-% pl.pos2plot='center';
+pl.pos2plot='center';
 % pl.pos2plot='right';
-pl.pos2plot='left';
+% pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];
 pl.sub2sel = 1:numel(F.Subs2use);
 pl.sub2plot = pl.sub2sel( ...
@@ -286,7 +286,7 @@ for i_sub = 1:numel(pl.sub2plot)
             TFA.fftdata_ind(t.fidx(1):t.fidx(2),pl.elec2plot_i{t.elidx},:,pl.time2plot,pl.sub2plot(i_sub)),[1,2] ... %induced
             ));
         pl.RDK.data_evo(i_rdk,:,:,i_sub) = squeeze(mean( ...
-            TFA.fftdata_evo(t.fidx(1):t.fidx(2),pl.elec2plot_i{t.elidx},:,pl.time2plot,pl.sub2plot(i_sub)),[1,2] ... %induced
+            TFA.fftdata_evo(t.fidx(1):t.fidx(2),pl.elec2plot_i{t.elidx},:,pl.time2plot,pl.sub2plot(i_sub)),[1,2] ... %evoked
             ));
 
         % write some data
@@ -304,15 +304,22 @@ pl.RDK.data_evo_bc = 100*(bsxfun(@rdivide, pl.RDK.data_evo, pl.RDK.data_evo(:,:,
 % pl.RDK.data_evo_bc = bsxfun(@minus, pl.RDK.data_evo, pl.RDK.data_evo(:,:,1,:));
 
 
-% do some interim plotting for checking everything
-t.tdata = cat(3, ...
-    [squeeze(mean(pl.RDK.data_evo(1,[1 3 5],2,:),2)) squeeze(mean(pl.RDK.data_evo(1,[2 4 6],2,:),2))], ...
-    [squeeze(mean(pl.RDK.data_evo(2,[2 4 6],2,:),2)) squeeze(mean(pl.RDK.data_evo(2,[1 3 5],2,:),2))]);
-figure; boxplot(mean(t.tdata,3))
-t.tdata = cat(3, ...
-    [squeeze(mean(pl.RDK.data_evo_bc(1,[1 3 5],2,:),2)) squeeze(mean(pl.RDK.data_evo_bc(1,[2 4 6],2,:),2))], ...
-    [squeeze(mean(pl.RDK.data_evo_bc(2,[2 4 6],2,:),2)) squeeze(mean(pl.RDK.data_evo_bc(2,[1 3 5],2,:),2))]);
-figure; boxplot(mean(t.tdata,3))
+% % do some interim plotting for checking everything
+% t.tdata = cat(3, ...
+%     [squeeze(mean(pl.RDK.data_evo(1,[1 3 5],2,:),2)) squeeze(mean(pl.RDK.data_evo(1,[2 4 6],2,:),2))], ...
+%     [squeeze(mean(pl.RDK.data_evo(2,[2 4 6],2,:),2)) squeeze(mean(pl.RDK.data_evo(2,[1 3 5],2,:),2))]);
+% figure; boxplot(mean(t.tdata,3))
+% t.tidx = strcmp(pl.RDK.RDK_pos1,'center') & strcmp(pl.RDK.timewin,'[0.5 1.5] ') & pl.RDK.RDK_freq == 29 ;
+% t.tdata_ev0 =  pl.RDK.data_evo_bc;  t.tdata_ev0(~t.tidx)= nan;
+% t.tdata = cat(3, ...
+%     [squeeze(mean(t.tdata_ev0(1,[1 3 5],2,:),2,'omitnan')) squeeze(mean(t.tdata_ev0(1,[2 4 6],2,:),2,'omitnan'))], ...
+%     [squeeze(mean(t.tdata_ev0(2,[2 4 6],2,:),2,'omitnan')) squeeze(mean(t.tdata_ev0(2,[1 3 5],2,:),2,'omitnan'))]);
+% figure; boxplot(mean(t.tdata,3,'omitnan'))
+% figure; plot(mean(t.tdata,3,'omitnan')')
+% t.tdata2 =diff(mean(t.tdata,3,'omitnan'),1,2);
+% figure; boxplot(diff(mean(t.tdata,3,'omitnan'),1,2));
+% figure; histfit(diff(mean(t.tdata,3,'omitnan'),1,2),20)
+% [tt.h,tt.p,tt.ci,tt.stats] = ttest(diff(mean(t.tdata,3,'omitnan'),1,2));
 
 R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modulation_evoked','subjects', 'condition', 'time', ...
     'RDK_id', 'RDK_position1','RDK_position2', 'RDK_freq', 'RDK_color', 'RDK_ispresented', 'RDK_isattended', 'RDK_electrodes'}; ...

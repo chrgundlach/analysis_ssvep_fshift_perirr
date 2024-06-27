@@ -3,10 +3,10 @@ clearvars
 F.PathInEEG             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\EEG\TFA'; % with FWHM 0.5
 
 F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput',false)';
-F.Subs2use              = [1:13 15:21];
+% F.Subs2use              = [1:13 15:21];
 % changed experiment from participant 22 onwards (stimuli isoluminant to
 % background and used other frequencies
-F.Subs2use              = [22:23];
+F.Subs2use              = [22:24];
                         
 F.TFA.baseline          = [-500 -250];
 
@@ -29,6 +29,15 @@ F.conRDKpresent_label(F.conRDKpresent)={'presented'};
 F.conRDKcolattended_label = repmat({'not attended'},size(F.conRDKcolattended));
 F.conRDKcolattended_label(F.conRDKcolattended==1)={'attended'};
 F.conRDKcolattended_label(F.conRDKcolattended==2)={'irrelevant'};
+
+% an additional category [manually]
+F.conRDKcolattended_label2 = F.conRDKcolattended_label;
+[F.conRDKcolattended_label2{[13 20]}] = deal('attended + not attended');
+[F.conRDKcolattended_label2{[14 19]}] = deal('not attended + attended');
+[F.conRDKcolattended_label2{[15 22]}] = deal('attended + irrelevant');
+[F.conRDKcolattended_label2{[18 23]}] = deal('not attended + irrelevant');
+[F.conRDKcolattended_label2{[27 28]}] = deal('irrelevant + attended');
+[F.conRDKcolattended_label2{[29 30]}] = deal('irrelevant + not attended');
 
 
 
@@ -102,7 +111,7 @@ pl.elec2plot_i=cellfun(@(y) ...
 
 
 pl.time2plot = [1];
-pl.freq2plot=F.SSVEP_Freqs(4);
+pl.freq2plot=F.SSVEP_Freqs(5);
 pl.sub2plot = 1:numel(F.Subs2use);
 
 % extract data
@@ -267,6 +276,7 @@ pl.RDK.con = permute(repmat((1:numel(F.conlabel_att))',[1 size(pl.RDK.data_ind,[
 pl.RDK.RDK_id = repmat(pl.RDKlabel,[1 size(pl.RDK.data_ind, [2 3 4 ])]);
 pl.RDK.RDK_ispresent = permute(repmat(F.conRDKpresent_label,[1 1 size(pl.RDK.data_ind,[3 4])]),[2 1 3 4]);
 pl.RDK.RDK_isattended = permute(repmat(F.conRDKcolattended_label,[1 1 size(pl.RDK.data_ind,[3 4])]),[2 1 3 4]);
+pl.RDK.RDK_isattended2 = permute(repmat(F.conRDKcolattended_label2,[1 1 size(pl.RDK.data_ind,[3 4])]),[2 1 3 4]);
 pl.RDK.timewin = permute(repmat(pl.timelabel,[1 size(pl.RDK.data_ind,[1 2 4])]), [2 3 1 4]);
 pl.RDK.sub = permute(repmat(F.Subs2use(pl.sub2plot)',[1 size(pl.RDK.data_ind,[1 2 3])]),[2 3 4 1]);
 pl.RDK.RDK_pos2 = repmat(pl.RDKposlabel2,[1 size(pl.RDK.data_ind, [2 3 4 ])]);
@@ -326,10 +336,10 @@ pl.RDK.data_evo_bc = 100*(bsxfun(@rdivide, pl.RDK.data_evo, pl.RDK.data_evo(:,:,
 % [tt.h,tt.p,tt.ci,tt.stats] = ttest(diff(mean(t.tdata,3,'omitnan'),1,2));
 
 R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modulation_evoked','subjects', 'condition', 'time', ...
-    'RDK_id', 'RDK_position1','RDK_position2', 'RDK_freq', 'RDK_color', 'RDK_ispresented', 'RDK_isattended', 'RDK_electrodes'}; ...
+    'RDK_id', 'RDK_position1','RDK_position2', 'RDK_freq', 'RDK_color', 'RDK_ispresented', 'RDK_isattended', 'RDK_isattended2', 'RDK_electrodes'}; ...
     num2cell([pl.RDK.data_ind(:) pl.RDK.data_evo(:) pl.RDK.data_ind_bc(:) pl.RDK.data_evo_bc(:) pl.RDK.sub(:) pl.RDK.con(:)]) ...
     pl.RDK.timewin(:) pl.RDK.RDK_id(:) pl.RDK.RDK_pos1(:) pl.RDK.RDK_pos2(:) num2cell(pl.RDK.RDK_freq(:)) pl.RDK.RDK_color(:) ...
-    pl.RDK.RDK_ispresent(:) pl.RDK.RDK_isattended(:) pl.RDK.RDK_electrodes(:)
+    pl.RDK.RDK_ispresent(:) pl.RDK.RDK_isattended(:) pl.RDK.RDK_isattended2(:) pl.RDK.RDK_electrodes(:)
     ];
 
 R_Mat.all_table = cell2table(R_Mat.all(2:end,:), "VariableNames",R_Mat.all(1,:));

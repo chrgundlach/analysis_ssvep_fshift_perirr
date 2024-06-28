@@ -1,7 +1,7 @@
 % Script for analyzing EEG data from SSVEP_FShiftProbabil
 %
 %
-%    2023 - C. Gundlach
+%    2024 - C. Gundlach
 
 
 
@@ -18,6 +18,7 @@ p.mean_path=        [p.path 'eeg\mean\'];
 p.subs=             cellfun(@(x) sprintf('%02.0f',x),num2cell(1:40),'UniformOutput', false)';
 % p.subs2use=         [1 3:6 7 9 10 11 12];%  % participant 2,8 measurement cancelled due to bad behavior
 p.subs2use=         [1:13 15:24];%
+p.subs2use=         [1 2];%
 p.part=             {'1';'2';'3'};
 p.events=           {[201] [202]}; % trigger
 p.con1name =        'type';

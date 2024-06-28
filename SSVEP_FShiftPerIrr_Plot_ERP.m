@@ -15,10 +15,10 @@ F.conds_between=        [repmat({'bckgrd_off'},1,numel([1:13 15:21])) repmat({'b
 
 %% load data
 for i_sub = 1:numel(F.Subs2use)
-    fprintf(1,'|| file %1.0f out of %1.0f || %s\\VP%s_e.mat ||\n',...
+    fprintf(1,'|| file %1.0f out of %1.0f || %s\\VP%s_events_erp.mat ||\n',...
         i_sub,numel(F.Subs2use),F.PathInEEG,F.Subs{F.Subs2use(i_sub)})
     
-    temp.erp = open(fullfile(F.PathInEEG,sprintf('VP%s_target_erp.mat',F.Subs{F.Subs2use(i_sub)})));
+    temp.erp = open(fullfile(F.PathInEEG,sprintf('VP%s_events_erp.mat',F.Subs{F.Subs2use(i_sub)})));
     
     % preallocate memory
     if i_sub == 1

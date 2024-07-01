@@ -99,7 +99,7 @@ for i_sub = 1:numel(F.sub2use)
     % add some information
     t.ur_epoch = num2cell(t.prep_idx);
     [t.behavior.urepoch] = deal(t.ur_epoch{:});
-    [t.behavior.stim_luminance] = deal(F.conname_betweenlabel(F.sub2use(i_sub)));
+    [t.behavior.stim_luminance] = deal(F.conname_betweenlabel{F.sub2use(i_sub)});
 
     % prune information to respective event (as more than one event could have been shown)
     for i_event = 1:numel(t.behavior)
@@ -120,7 +120,7 @@ for i_sub = 1:numel(F.sub2use)
         % event onset times
         t.behavior(i_event).event_onset_times = t.behavior(i_event).event_onset_times(t.idx);
         % event_response_type
-        t.behavior(i_event).event_response_type = t.behavior(i_event).event_response_type(t.idx);
+        t.behavior(i_event).event_response_type = t.behavior(i_event).event_response_type{t.idx};
         % event_response_RT
         t.behavior(i_event).event_response_RT = t.behavior(i_event).event_response_RT(t.idx);
 

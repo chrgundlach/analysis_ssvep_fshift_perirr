@@ -1,7 +1,7 @@
 %% plot TFA images
 clearvars
-F.PathInEEG             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\epoch_erp'; 
-
+F.PathInEEG             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\erp'; 
+F.PathInEEG             = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\erp'; 
 
 F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:40,'UniformOutput',false)';
 F.Subs2use              = [1:13 15:24]; 
@@ -49,8 +49,8 @@ pl.pcorrect = [0 abs(log10([0.5 0.25 0.1 0.05 0.01 0.001 0.0001 0.00001]))];
     
 % loop through conditions defined in contrasts
 pl.con_contrast = {... % contrasts by 1st dim; averaged across second dim
-    'trial_timing_type', {{'regular'}}; ...
-    'cue_validity_label', {{'valid'};{'neutral'};{'invalid'}}};
+    %'trial_timing_type', {{'regular'}}; ...
+    'eventtype', {{'target'};{'distractor'}}};
 pl.sub2plot = 1:numel(F.Subs2use);
 
 
@@ -98,7 +98,7 @@ end
 % reshape pl.data
 pl.dat2plot_rs = mean(squeeze(pl.dat2plot),4);
 
-pl.con_label = [pl.con_contrast{2,2}{:}];
+pl.con_label = [pl.con_contrast{1,2}{:}];
 
 plot_data_topoarray(EP.electrodes, pl.dat2plot_rs,'ERP','times',EP.time,'conds',pl.con_label)
 
@@ -107,28 +107,29 @@ plot_data_topoarray(EP.electrodes, pl.dat2plot_rs,'ERP','times',EP.time,'conds',
 
 % loop through conditions defined in contrasts
 pl.con_contrast = {... % contrasts by 1st dim; averaged across second dim
-    'trial_timing_type', {{'regular'}}; ...
-    'event_response_type', {{'hit'}}; ...
+    %'trial_timing_type', {{'regular'}}; ...
+%     'event_response_type', {{'hit'}}; ...
 %     'evnt_type_label', {{'chroma+'}}; ...
 %     'event_response_type', {{'hit','FA','error','miss'}}; ...
-    'cue_validity_label', {{'valid'};{'neutral'};{'invalid'}}};
+    'eventtype', {{'target'};{'distractor'}}};
 pl.sub2plot = 1:numel(F.Subs2use);
-pl.elec2plot = {'P8';'PO8';'P10';'P7';'PO7';'P9'}; % for P1 component lateral !
+% pl.elec2plot = {'P8';'PO8';'P10';'P7';'PO7';'P9'}; % for P1 component lateral !
 % pl.elec2plot = {'P7';'PO7';'P9';'O1';'I1';'Oz'; 'Iz';'O2';'I2';'P8';'PO8';'P10';}; % for N2 component posterior!
 % pl.elec2plot = {'P3';'P1';'Pz';'P4';'P2';'POz';'PO3';'PO4'}; % for P300 component centro-parietal!
 % pl.elec2plot = {'POz';'Oz';'O1';'O2';'Iz'}; % for N1 component centro-parietal
 % pl.elec2plot = {'P6';'P8';'PO8';'P10';'P5';'P7';'PO7';'P9'}; % for N2 component lateral
 % pl.elec2plot = {'POz'}; % early N2 SN?
 % pl.elec2plot = {'CPz';'Cz'}; % early N2 SN?
-% pl.elec2plot = {'FCz';'Fz'}; % early frontal?
+pl.elec2plot = {'FCz';'Fz'}; % early frontal?
 
-pl.con_label = {'valid';'neutral';'invalid'};
+pl.con_label = {'target'; 'distractor'};
 
 pl.elec2plot_i = ...
     any(cell2mat(cellfun(@(x) strcmp({EP.electrodes.labels},x), pl.elec2plot, 'UniformOutput',false)),1);
 
 pl.time2plot = [-100 500]; % time in ms
 pl.time2plot = [-100 700]; % time in ms
+pl.time2plot = [-100 900]; % time in ms
 pl.time2plot_i = dsearchn(EP.time', pl.time2plot');
 
 pl.concols = num2cell([25 138 130; 41 60 74; 241 131 26]'./255,1);
@@ -220,8 +221,8 @@ set(gcf, 'Color', [1 1 1]);
 
 % loop through conditions defined in contrasts
 pl.con_contrast = {... % contrasts by 1st dim; averaged across second dim
-    'trial_timing_type', {{'regular'}}; ...
-    'evnt_type_label', {{'chroma+'}}; ...
+    'eventtype', {{'target'}}; ...
+%     'evnt_type_label', {{'chroma+'}}; ...
     'event_response_type', {{'hit'};{'FA','error','miss'}}};
 pl.sub2plot = 1:numel(F.Subs2use);
 % pl.elec2plot = {'P8';'PO8';'P10';'P7';'PO7';'P9'}; % for P1 component lateral !
@@ -232,7 +233,7 @@ pl.elec2plot = {'P3';'P1';'Pz';'P4';'P2';'POz';'PO3';'PO4'}; % for P300 componen
 
 % pl.elec2plot = {'POz'}; % early N2 SN?
 % pl.elec2plot = {'CPz';'Cz'}; % early N2 SN?
-pl.elec2plot = {'FCz';'Fz'}; % early frontal?
+% pl.elec2plot = {'FCz';'Fz'}; % early frontal?
 
 
 pl.elec2plot_i = ...

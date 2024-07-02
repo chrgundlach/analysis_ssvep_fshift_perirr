@@ -6,7 +6,7 @@ F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput'
 % F.Subs2use              = [1:13 15:21];
 % changed experiment from participant 22 onwards (stimuli isoluminant to
 % background and used other frequencies
-F.Subs2use              = [1:13 15:24];
+F.Subs2use              = [1:13 15:25];
                         
 F.TFA.baseline          = [-500 -250];
 
@@ -113,8 +113,12 @@ pl.elec2plot_i=cellfun(@(y) ...
 
 
 pl.time2plot = [1];
-pl.freq2plot=F.SSVEP_Freqs(5);
 pl.sub2plot = 1:numel(F.Subs2use);
+pl.sub2plot = find(F.Subs2use<22); % luminance offset
+pl.freq2plot=F.SSVEP_Freqs{1}(5);
+
+pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
+pl.freq2plot=F.SSVEP_Freqs{2}(5);
 
 % extract data
 pl.data_ind = nan(size(TFA.fftdata_ind,1), numel(pl.sub2plot)); pl.data_evo = pl.data_ind;
@@ -176,9 +180,13 @@ pl.time2plot = [1:3];
 pl.time2plot = [1];
 % pl.pos2plot='center';
 % pl.pos2plot='right';
-% pl.pos2plot='left';
+pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];
 pl.sub2sel = 1:numel(F.Subs2use);
+pl.sub2sel = find(F.Subs2use<22); % luminance offset
+pl.sub2sel = find(F.Subs2use>21); % isoluminant to background
+
+
 pl.sub2plot = pl.sub2sel( ...
     cellfun(@(x) any(strcmp({x.poslabel},pl.pos2plot)), ... % index for which subject RDKs were presented at pl.pos2plot
     {TFA.RDK(pl.sub2sel).RDK}));

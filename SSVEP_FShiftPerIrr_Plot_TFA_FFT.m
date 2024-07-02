@@ -115,10 +115,10 @@ pl.elec2plot_i=cellfun(@(y) ...
 pl.time2plot = [1];
 pl.sub2plot = 1:numel(F.Subs2use);
 pl.sub2plot = find(F.Subs2use<22); % luminance offset
-pl.freq2plot=F.SSVEP_Freqs{1}(5);
+pl.freq2plot=F.SSVEP_Freqs{1}(2);
 
-pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
-pl.freq2plot=F.SSVEP_Freqs{2}(5);
+% pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
+% pl.freq2plot=F.SSVEP_Freqs{2}(5);
 
 % extract data
 pl.data_ind = nan(size(TFA.fftdata_ind,1), numel(pl.sub2plot)); pl.data_evo = pl.data_ind;
@@ -184,7 +184,7 @@ pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];
 pl.sub2sel = 1:numel(F.Subs2use);
 pl.sub2sel = find(F.Subs2use<22); % luminance offset
-pl.sub2sel = find(F.Subs2use>21); % isoluminant to background
+% pl.sub2sel = find(F.Subs2use>21); % isoluminant to background
 
 
 pl.sub2plot = pl.sub2sel( ...
@@ -254,9 +254,15 @@ pl.elec2plot = {{'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'P8';
     {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
     {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
 
+% smaller for center
 pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
     {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
     {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
+
+% only center for periphery
+pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
+    {'POz';'Oz';'O1';'PO3'}, 'left'; ...
+    {'POz';'Oz';'O2';'PO4'}, 'right'};
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -365,6 +371,7 @@ t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % xlswrite(fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),R_Mat.all)
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),'Delimiter',';')
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_pericenter_allsubs_%s.csv',t.datestr)),'Delimiter',';')
 
 %% actual plotting data | TFA Grand Mean timecourse
 % plotting parameters

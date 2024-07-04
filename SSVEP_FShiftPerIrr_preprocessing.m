@@ -21,7 +21,7 @@ p.exp_name=         'SSVEP_FShiftPerIrr';
 p.subs=             arrayfun(@(x) sprintf('%02.0f',x),1:40,'UniformOutput',false)';
 % from 4 onwards: same design
 % p.subs2use=         [6:13 16:18];%
-p.subs2use=         [25];%
+p.subs2use=         [26:27];%
 p.part=             {'_1';'_2';'_3'};
 % p.events =          {[10 11 12 16 17 18 19]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
 %                     [20 21 22 26 27 28 29]; ... %RDK2 attended; RDK1 and RDK2 colors in periphery peri attended + unattended

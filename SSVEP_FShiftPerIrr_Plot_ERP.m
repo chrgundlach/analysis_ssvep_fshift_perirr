@@ -4,7 +4,7 @@ F.PathInEEG             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_
 F.PathInEEG             = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\erp'; 
 
 F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:40,'UniformOutput',false)';
-F.Subs2use              = [1:13 15:25]; 
+F.Subs2use              = [1:13 15:27]; 
                         % 1 to 22
                         % for subject 12, 14, 39: eeg and behavior data don't match
 
@@ -113,6 +113,10 @@ pl.con_contrast = {... % contrasts by 1st dim; averaged across second dim
 %     'event_response_type', {{'hit','FA','error','miss'}}; ...
     'eventtype', {{'target'};{'distractor'}}};
 pl.sub2plot = 1:numel(F.Subs2use);
+pl.sub2plot = find(F.Subs2use<22); % luminance offset
+% pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
+
+
 % pl.elec2plot = {'P8';'PO8';'P10';'P7';'PO7';'P9'}; % for P1 component lateral !
 % pl.elec2plot = {'P7';'PO7';'P9';'O1';'I1';'Oz'; 'Iz';'O2';'I2';'P8';'PO8';'P10';}; % for N2 component posterior!
 pl.elec2plot = {'P3';'P1';'Pz';'P4';'P2';'POz';'PO3';'PO4'}; % for P300 component centro-parietal!
@@ -244,8 +248,8 @@ pl.time2plot = [-100 500]; % time in ms
 pl.time2plot = [-100 700]; % time in ms
 pl.time2plot_i = dsearchn(EP.time', pl.time2plot');
 
-pl.concols = num2cell([1 0.1 0.1; 0.3 0.3 1],2)';
-pl.concols(2,:) = num2cell([1 0.6 0.6; 0.7 0.7 1],2)';
+pl.concols = num2cell([1 0.1 0.1; 0.3 0.3 1],2);
+pl.concols(:,2) = num2cell([1 0.6 0.6; 0.7 0.7 1],2);
 pl.con_label = {'hit';'miss'};
 
 
@@ -323,13 +327,13 @@ for i_con1 = 1:size(pl.data_m,2)
         h.plm{i_con1,i_con2}=...
             plot(EP.time(pl.idx), pl.data_m(pl.idx,i_con1,i_con2),'Color',pl.concols{i_con1,i_con2},'LineWidth',2);
         
-        pl.legend = [pl.legend; strcat(pl.con_contrast{1,2}{i_con1},'+', pl.con_contrast{2,2}{i_con2})];
+        pl.legend{i_con1,i_con2} = [strcat(pl.con_contrast{1,2}{i_con1},'+', pl.con_contrast{2,2}{i_con2})];
     end
 end
 xlim(pl.time2plot)
 xlabel('time in ms')
 ylabel('amplitude in \muV/cm²')
-legend([h.plm{:}],pl.legend,'Location','EastOutside','box','off','Interpreter','none')
+legend([h.plm{:}],[pl.legend{:}],'Location','EastOutside','box','off','Interpreter','none')
 grid on
 set(gca, 'Ydir','reverse')
 

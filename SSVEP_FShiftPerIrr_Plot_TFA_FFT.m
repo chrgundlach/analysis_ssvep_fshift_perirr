@@ -6,7 +6,7 @@ F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput'
 % F.Subs2use              = [1:13 15:21];
 % changed experiment from participant 22 onwards (stimuli isoluminant to
 % background and used other frequencies
-F.Subs2use              = [1:13 15:27];
+F.Subs2use              = [1:13 15:29];
                         
 F.TFA.baseline          = [-500 -250];
 

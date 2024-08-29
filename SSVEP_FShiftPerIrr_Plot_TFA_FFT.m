@@ -6,7 +6,7 @@ F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput'
 % F.Subs2use              = [1:13 15:21];
 % changed experiment from participant 22 onwards (stimuli isoluminant to
 % background and used other frequencies
-F.Subs2use              = [1:13 15:31];
+F.Subs2use              = [1:13 15:34];
                         
 F.TFA.baseline          = [-500 -250];
 
@@ -103,9 +103,9 @@ pl.elec2plot = {{'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'P8';
     {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
     {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
 
-pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
-    {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
-    {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
+% pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
+%     {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
+%     {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -255,9 +255,9 @@ pl.elec2plot = {{'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'P8';
     {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
 
 % smaller for center
-pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
-    {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
-    {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
+% pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
+%     {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
+%     {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
 
 % % only center for periphery
 % pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
@@ -370,8 +370,8 @@ t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % write to textfile
 % xlswrite(fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),R_Mat.all)
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),'Delimiter',';')
-% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
-writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_pericenter_allsubs_%s.csv',t.datestr)),'Delimiter',';')
+writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_pericenter_allsubs_%s.csv',t.datestr)),'Delimiter',';')
 
 %% actual plotting data | TFA Grand Mean timecourse
 % plotting parameters

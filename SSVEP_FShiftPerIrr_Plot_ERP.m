@@ -4,7 +4,7 @@ F.PathInEEG             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_
 F.PathInEEG             = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\erp'; 
 
 F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:40,'UniformOutput',false)';
-F.Subs2use              = [1:13 15:29]; 
+F.Subs2use              = [1:13 15:34]; 
                         % 1 to 22
                         % for subject 12, 14, 39: eeg and behavior data don't match
 

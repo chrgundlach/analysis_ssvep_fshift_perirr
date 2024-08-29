@@ -6,10 +6,13 @@ p.path =                '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_da
 p.subs=                 arrayfun(@(x) sprintf('%02.0f',x),1:30,'UniformOutput',false)';
 % p.subs2use=             [1:13 15:21];% 
 % changed experiment from participant 22 onwards (stimuli isoluminant to background
-p.subs2use=             [22:23];%
+p.subs2use=             [1:13 15:29];%
 p.responsewin =         [0.2 1]; % according to p.targ_respwin from run_posnalpha
 
 p.eventtype =           {'target';'distractor'};
+p.SSVEP_Freqsforsubs =  ones(size(p.subs2use)); p.SSVEP_Freqsforsubs(p.subs2use>21)=2;
+p.colorlum =            repmat({'offset_to_bckgrd'}, 1, numel(p.subs2use));
+p.colorlum(p.SSVEP_Freqsforsubs == 2) = {'isolum__to_bckgrd'};
 
 
 % p.con1index =           [1 1 2 2];
@@ -54,6 +57,7 @@ for i_sub = 1:numel(p.subs2use)
     t.data_blocknum = repmat([data_all_struct.blocknumber],2,1); % block number
     t.data_condition = repmat([data_all_struct.condition],2,1); % block number
     t.data_eventRDK = [data_all_struct.eventRDK]; % RDK of event
+    t.data_colorlum =  repmat(p.colorlum(i_sub),size(t.data_eventRDK));
     t.data_eventcolorname = repmat({''},size(t.data_eventRDK));
     for i_rdk = 1:2
         t.data_eventcolorname(t.data_eventRDK==i_rdk)=deal({data_in.RDK(i_rdk).colnames});
@@ -75,9 +79,9 @@ for i_sub = 1:numel(p.subs2use)
     % write into one file
     data_events = cell2struct([num2cell([t.data_subject(t.evidx) t.data_trialnum(t.evidx) t.data_blocknum(t.evidx) t.data_condition(t.evidx)]) t.data_eventtype(t.evidx)  ...
         num2cell(t.data_eventRDK(t.evidx)) t.data_eventcolorname(t.evidx) num2cell([t.data_eventfreq(t.evidx) t.data_eventnum(t.evidx)]) ...
-        t.data_response(t.evidx) num2cell(t.data_response_RT(t.evidx))]',...
+        t.data_response(t.evidx) num2cell(t.data_response_RT(t.evidx)) t.data_colorlum(t.evidx)]',...
         {'participant','trialnumber','blocknumber','condition','eventtype','RDKnumber','eventcolor','eventfrequency','eventnumber',...
-        'response','RT'});
+        'response','RT', 'colorlum'});
     
     if i_sub == 1
         response_events = data_events;
@@ -117,7 +121,7 @@ response_FA_table = struct2table(response_FA);
 
 % general summary mean RT and hit rate
 % export data
-p.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_FShiftBase\data';
+p.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
 p.filename1 = 'behavior_events.csv';
 p.filename2 = 'behavior_FAs.csv';
 writetable(response_events_table, fullfile(p.path,p.filename1))

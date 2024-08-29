@@ -6,7 +6,7 @@ F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput'
 % F.Subs2use              = [1:13 15:21];
 % changed experiment from participant 22 onwards (stimuli isoluminant to
 % background and used other frequencies
-F.Subs2use              = [1:13 15:29];
+F.Subs2use              = [1:13 15:31];
                         
 F.TFA.baseline          = [-500 -250];
 
@@ -183,8 +183,8 @@ pl.time2plot = [1];
 pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];
 pl.sub2sel = 1:numel(F.Subs2use);
-pl.sub2sel = find(F.Subs2use<22); % luminance offset
-% pl.sub2sel = find(F.Subs2use>21); % isoluminant to background
+% pl.sub2sel = find(F.Subs2use<22); % luminance offset
+pl.sub2sel = find(F.Subs2use>21); % isoluminant to background
 
 
 pl.sub2plot = pl.sub2sel( ...
@@ -371,7 +371,7 @@ t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % xlswrite(fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),R_Mat.all)
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),'Delimiter',';')
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
-% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_pericenter_allsubs_%s.csv',t.datestr)),'Delimiter',';')
+writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_pericenter_allsubs_%s.csv',t.datestr)),'Delimiter',';')
 
 %% actual plotting data | TFA Grand Mean timecourse
 % plotting parameters

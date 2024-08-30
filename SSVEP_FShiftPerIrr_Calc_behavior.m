@@ -6,7 +6,7 @@ p.path =                '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_da
 p.subs=                 arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput',false)';
 % p.subs2use=             [1:13 15:21];% 
 % changed experiment from participant 22 onwards (stimuli isoluminant to background
-p.subs2use=             [1:13 15:34];%
+p.subs2use=             [1:13 15:36];%
 p.responsewin =         [0.2 1]; % according to p.targ_respwin from run_posnalpha
 
 p.eventtype =           {'target';'distractor'};
@@ -122,6 +122,7 @@ response_FA_table = struct2table(response_FA);
 % general summary mean RT and hit rate
 % export data
 p.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
+p.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
 p.filename1 = 'behavior_events.csv';
 p.filename2 = 'behavior_FAs.csv';
 writetable(response_events_table, fullfile(p.path,p.filename1))

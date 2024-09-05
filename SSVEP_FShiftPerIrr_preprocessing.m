@@ -14,14 +14,14 @@ p.bdf_path=         [p.path 'eeg\raw\'];
 p.set_path=         [p.path 'eeg\set\'];
 p.epoch_path=       [p.path 'eeg\epoch\'];
 p.scads_path=       [p.path 'eeg\SCADS\'];
-% p.chanlocs_path=    'C:\Users\psy05cvd\Dropbox\work\matlab\Auswertungsskripte\Analyzer_G\ChanLocs\BioSemi64_1020.epf';
-p.chanlocs_path=    'C:\Users\EEG\Documents\MATLAB\lab_library\BS_Chanlocs\BioSemi64_1020.epf';
+p.chanlocs_path=    'C:\Users\psy05cvd\Dropbox\work\matlab\Auswertungsskripte\Analyzer_G\ChanLocs\BioSemi64_1020.epf';
+% p.chanlocs_path=    'C:\Users\EEG\Documents\MATLAB\lab_library\BS_Chanlocs\BioSemi64_1020.epf';
 p.mean_path=        [p.path 'EEG\mean\'];
 p.exp_name=         'SSVEP_FShiftPerIrr';
 p.subs=             arrayfun(@(x) sprintf('%02.0f',x),1:40,'UniformOutput',false)';
 % from 4 onwards: same design
 % p.subs2use=         [6:13 16:18];%
-p.subs2use=         [35 36];%
+p.subs2use=         [37 38];%
 p.part=             {'_1';'_2';'_3'};
 % p.events =          {[10 11 12 16 17 18 19]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
 %                     [20 21 22 26 27 28 29]; ... %RDK2 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
@@ -50,7 +50,7 @@ TopoFlag=           0;
 if ImportFlag==0 && EpochFlag==0 && MeanFlag==0 && TopoFlag==0, help(AnaScriptName),return, end
 
 %% Main Script 
-% loop for subjects
+% loop for subjectsee
 for i_sub=1:numel(p.subs2use)
     FileName=sprintf('VP%s',p.subs{p.subs2use(i_sub)});
     if ~MeanFlag || ((MeanFlag && EpochFlag) || (ImportFlag && EpochFlag && MeanFlag) || (MeanFlag && ~TopoFlag)),end

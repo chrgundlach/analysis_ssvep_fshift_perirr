@@ -6,7 +6,7 @@ F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput'
 % F.Subs2use              = [1:13 15:21];
 % changed experiment from participant 22 onwards (stimuli isoluminant to
 % background and used other frequencies
-F.Subs2use              = [1:13 15:36];
+F.Subs2use              = [1:13 15:38];
                         
 F.TFA.baseline          = [-500 -250];
 
@@ -42,7 +42,8 @@ F.conRDKcolattended_label2 = F.conRDKcolattended_label;
 [F.conRDKcolattended_label2{[29 30]}] = deal('irrelevant + not attended');
 
 
-
+pl.plegend = {'1';'0.5';'0.25';'0.1';'0.05';'0.01';'0.001';'0.0001';'0.00001'};
+pl.pcorrect = [0 abs(log10([0.5 0.25 0.1 0.05 0.01 0.001 0.0001 0.00001]))];
 %% load data
 for i_sub = 1:numel(F.Subs2use)
     fprintf(1,'|| file %1.0f out of %1.0f || %s\\VP%s_tfa.mat ||\n',...
@@ -96,6 +97,20 @@ pl.pcorrect = [0 abs(log10([0.5 0.25 0.1 0.05 0.01 0.001 0.0001 0.00001]))];
 
 
 
+%% plot electrode head
+% pl.elec2plot = {'C3';'CP3'};
+pl.elec2plot = {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'};
+% pl.elec2plot = {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'};
+% pl.elec2plot = {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'};
+% pl.elec2plot = {'POz';'O1';'Oz';'I2';'Iz'};
+% pl.elec2plot = {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'};
+% pl.elec2plot = {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'};
+
+
+figure;
+pl.elec2plot_i=logical(sum(cell2mat(cellfun(@(x) strcmp({TFA.electrodes.labels},x), pl.elec2plot, 'UniformOutput',false)),1));
+% topoplot(find(pl.elec2plot_i),TFA.electrodes(1:64),'style','blank','electrodes', 'on','whitebk','on');
+topoplot([],TFA.electrodes(1:64),'whitebk','on','style','blank','electrodes', 'on', 'emarker2', {find(pl.elec2plot_i),'o','r',8});
 
 %% plot grand mean FFT data | spectra | for distinct frequencies (lookup of respective electrode cluster)
 % plotting parameters
@@ -103,9 +118,24 @@ pl.elec2plot = {{'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'P8';
     {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
     {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
 
-% pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
-%     {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
-%     {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
+pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
+    {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
+    {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
+
+% small adapted
+pl.elec2plot = {{'Oz';'Iz'}, 'center';...
+    {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+
+% small adapted 2
+pl.elec2plot = {{'Oz';'Iz';'O1';'O2'}, 'center';...
+    {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+
+% % very large center
+% pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
+%     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+%     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -113,6 +143,7 @@ pl.elec2plot_i=cellfun(@(y) ...
 
 
 pl.time2plot = [1];
+pl.time2plot = [1 2 3];
 pl.sub2plot = 1:numel(F.Subs2use);
 % pl.sub2plot = find(F.Subs2use<22); % luminance offset
 % pl.freq2plot=F.SSVEP_Freqs{1}(2);
@@ -178,8 +209,8 @@ topoplot(find(any(cell2mat(pl.elec2plot_i))),TFA(1).electrodes(1:64),'style','bl
 %% plot Grand Mean FFT data | topoplot for positions (as frequencies are random)
 pl.time2plot = [1:3];
 pl.time2plot = [1];
-% pl.pos2plot='center';
-pl.pos2plot='right';
+pl.pos2plot='center';
+% pl.pos2plot='right';
 % pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];
 pl.sub2sel = 1:numel(F.Subs2use);
@@ -204,8 +235,8 @@ for i_sub = 1:numel(pl.sub2sel)
         t.freq = TFA.RDK(pl.sub2sel(i_sub)).RDK(i_rdk).freq; % which SSVEP frequency?
         t.idx = dsearchn(TFA.fftfreqs',(pl.freqrange+t.freq)');
         % extract data
-        t.data_ind(:,i_rdk,:,i_sub) = squeeze(mean(TFA.fftdata_ind(t.idx(1):t.idx(2),:,:,pl.time2plot,i_sub),[1 4]));
-        t.data_evo(:,i_rdk,:,i_sub) = squeeze(mean(TFA.fftdata_evo(t.idx(1):t.idx(2),:,:,pl.time2plot,i_sub),[1 4]));
+        t.data_ind(:,i_rdk,:,i_sub) = squeeze(mean(TFA.fftdata_ind(t.idx(1):t.idx(2),:,:,pl.time2plot,pl.sub2sel(i_sub)),[1 4]));
+        t.data_evo(:,i_rdk,:,i_sub) = squeeze(mean(TFA.fftdata_evo(t.idx(1):t.idx(2),:,:,pl.time2plot,pl.sub2sel(i_sub)),[1 4]));
         
         % write some data
         t.data_freq(:,i_rdk,:,i_sub) = t.freq;
@@ -247,6 +278,169 @@ title(sprintf('evoked SSVEP amps at %s\nN = %1.0f | [%1.0f %1.0f]ms', ...
 colorbar
 
 
+%% plot FFT data modulation | topoplot effects on central stimuli
+pl.time_base = 1;
+pl.time2plot = [2];
+pl.pos2plot='center';
+% pl.pos2plot='right';
+% pl.pos2plot='left';
+pl.freqrange=[-0.1 0.1];
+pl.sub2sel = 1:numel(F.Subs2use);
+% pl.sub2sel = find(F.Subs2use<22); % luminance offset
+pl.sub2sel = find(F.Subs2use>21); % isoluminant to background
+pl.con2plot = F.conRDKcolattended_label(1:2);
+
+
+pl.sub2plot = pl.sub2sel( ...
+    cellfun(@(x) any(strcmp({x.poslabel},pl.pos2plot)), ... % index for which subject RDKs were presented at pl.pos2plot
+    {TFA.RDK(pl.sub2sel).RDK}));
+
+% extract data differently [is it converging?]
+% first, extract data for all of them
+pl.data_ind = []; pl.data_evo = [];
+t.data_ind = nan(numel(TFA.electrodes),numel(TFA.RDK(1).RDK),numel(F.conlabel_att),numel(TFA.ffttimewin),numel(pl.sub2sel));
+t.data_evo = t.data_ind;
+t.data_freq = t.data_ind; 
+t.dat_position = repmat({''},size(t.data_ind));
+t.data_ispresent = permute(repmat(F.conRDKpresent',[1 1 numel(TFA.electrodes) numel(pl.sub2sel)]), [3 1 2 4]); 
+for i_sub = 1:numel(pl.sub2sel)
+    for i_rdk = 1:numel(TFA.RDK(1).RDK)
+        t.freq = TFA.RDK(pl.sub2sel(i_sub)).RDK(i_rdk).freq; % which SSVEP frequency?
+        t.idx = dsearchn(TFA.fftfreqs',(pl.freqrange+t.freq)');
+        % extract data
+        t.data_ind(:,i_rdk,:,:,i_sub) = squeeze(mean(TFA.fftdata_ind(t.idx(1):t.idx(2),:,:,:,pl.sub2sel(i_sub)),[1]));
+        t.data_evo(:,i_rdk,:,:,i_sub) = squeeze(mean(TFA.fftdata_evo(t.idx(1):t.idx(2),:,:,:,pl.sub2sel(i_sub)),[1]));
+        
+        % write some data
+        t.data_freq(:,i_rdk,:,i_sub) = t.freq;
+        [t.dat_position{:,i_rdk,:,:,i_sub}] = deal(TFA.RDK(pl.sub2sel(i_sub)).RDK(i_rdk).poslabel);
+        
+    end
+end
+
+% now extract the data and collapse across RDKs
+t.rdkidx = find(sum(strcmp(t.dat_position,pl.pos2plot),[1,3 4 5 6]));
+t.data_ind_coll = nan(numel(TFA.electrodes),numel(t.rdkidx),numel(pl.con2plot),numel(TFA.ffttimewin),numel(pl.sub2sel));
+t.data_evo_coll = t.data_ind_coll;
+for i_rdk = 1:numel(t.rdkidx)
+    for i_con = 1:numel(pl.con2plot)
+        t.conidx = strcmp(F.conRDKcolattended_label(:,t.rdkidx(i_rdk)),pl.con2plot{i_con});
+        t.data_ind_coll(:,i_rdk,i_con,:,:) = mean(t.data_ind(:,t.rdkidx(i_rdk),t.conidx,:,:),3);
+        t.data_evo_coll(:,i_rdk,i_con,:,:) = mean(t.data_evo(:,t.rdkidx(i_rdk),t.conidx,:,:),3);
+    end
+end
+
+t.data_ind_coll_bc = ((mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) ./ t.data_ind_coll(:,:,:,pl.time_base,:))-1)*100;
+t.data_evo_coll_bc = ((mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) ./ t.data_evo_coll(:,:,:,pl.time_base,:))-1)*100;
+% t.data_ind_coll_bc = mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) - t.data_ind_coll(:,:,:,pl.time_base,:);
+% t.data_evo_coll_bc = mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) - t.data_evo_coll(:,:,:,pl.time_base,:);
+
+% collapse across RDKs
+t.data_ind_coll_bc = squeeze(mean(t.data_ind_coll_bc,2));
+t.data_evo_coll_bc = squeeze(mean(t.data_evo_coll_bc,2));
+
+% difference between conditions
+t.data_ind_coll_bc(:,3,:) = diff(t.data_ind_coll_bc,1,2);
+t.data_evo_coll_bc(:,3,:) = diff(t.data_evo_coll_bc,1,2);
+
+t.data_ind_coll_bc_m = mean(t.data_ind_coll_bc,3);
+t.data_evo_coll_bc_m = mean(t.data_evo_coll_bc,3);
+
+% do ttests
+[t.data_ind_coll_ttp t.data_evo_coll_ttp] = deal(nan(size(t.data_ind_coll_bc_m)));
+
+for i_con = 1:size(t.data_ind_coll_ttp,2)
+    [tt.h t.data_ind_coll_ttp(:,i_con) tt.ci tt.stats] = ttest(squeeze(t.data_ind_coll_bc(:,i_con,:))');
+    [tt.h t.data_evo_coll_ttp(:,i_con) tt.ci tt.stats] = ttest(squeeze(t.data_evo_coll_bc(:,i_con,:))');
+end
+
+% evoked
+figure;
+set(gcf,'Position',[100 100 800 500],'PaperPositionMode','auto')
+pl.conlabel = [F.conRDKcolattended_label(1:2) 'diff'];
+
+% modulations
+for i_con = 1:size(t.data_evo_coll_bc_m,2)
+    h.s(i_con) = subplot(2,size(t.data_evo_coll_bc,2),i_con);
+    pl.clim = [-1 1] *max(abs(t.data_evo_coll_bc_m),[],'all');
+    topoplot(t.data_evo_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',fake_parula,...
+        'whitebk','on');
+    title(sprintf('evoked SSVEP mod | %s\n[%1.0f %1.0f]ms', ...
+        pl.conlabel{i_con}, TFA.ffttimewin{pl.time2plot}*1000))
+    colorbar
+end
+
+% uncorrected t-values
+for i_con = 1:size(t.data_evo_coll_ttp,2)
+    t.data = abs(log10(t.data_evo_coll_ttp(:,i_con)));
+    t.clim = [0 max(t.data(:))];
+    t.pcriterion = abs(log10(0.05));
+    if max(t.data(:))<t.pcriterion
+        % temp.colormap = repmat([0.5 0.5 0.5],100,1);
+        t.colormap = repmat(linspace(1,0.3,1000)',1,3);
+    else
+        t.border = ceil((t.pcriterion / max(t.data(:)))*1000);
+        % temp.colormap = [repmat([0.5 0.5 0.5],temp.border,1); [linspace(0,1,100-temp.border)' repmat(0,100-temp.border,1) linspace(1,0,100-temp.border)']];
+        t.colormap = [repmat(linspace(1,0.3,t.border)',1,3); [linspace(0,1,1000-t.border)' zeros(1000-t.border,1) linspace(1,0,1000-t.border)']];
+    end
+
+    h.s2(i_con)=subplot(2,size(t.data_evo_coll_ttp,2),i_con+size(t.data_ind_coll_ttp,2));
+    topoplot( t.data, TFA.electrodes(1:64), ...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',t.clim,'conv','on','colormap',t.colormap);
+    title(sprintf('respective t-values'))
+    h.cb2 = colorbar;
+    t.yticks = get(h.cb2,'YTick');
+    set(h.cb2,'YTick',pl.pcorrect(1:find(pl.pcorrect<t.clim(end),1,'last')), ...
+        'YTickLabel',pl.plegend(1:find(pl.pcorrect<t.clim(end),1,'last')))
+
+end
+
+
+% induced
+figure;
+set(gcf,'Position',[100 100 800 500],'PaperPositionMode','auto')
+pl.conlabel = [F.conRDKcolattended_label(1:2) 'diff'];
+
+% modulations
+for i_con = 1:size(t.data_ind_coll_bc_m,2)
+    h.s(i_con) = subplot(2,size(t.data_ind_coll_bc_m,2),i_con);
+    pl.clim = [-1 1] *max(abs(t.data_ind_coll_bc_m),[],'all');
+    topoplot(t.data_ind_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',fake_parula,...
+        'whitebk','on');
+    title(sprintf('induced SSVEP mod | %s\n[%1.0f %1.0f]ms', ...
+        pl.conlabel{i_con}, TFA.ffttimewin{pl.time2plot}*1000))
+    colorbar
+end
+
+% uncorrected t-values
+for i_con = 1:size(t.data_evo_coll_ttp,2)
+    t.data = abs(log10(t.data_ind_coll_ttp(:,i_con)));
+    t.clim = [0 max(t.data(:))];
+    t.pcriterion = abs(log10(0.05));
+    if max(t.data(:))<t.pcriterion
+        % temp.colormap = repmat([0.5 0.5 0.5],100,1);
+        t.colormap = repmat(linspace(1,0.3,1000)',1,3);
+    else
+        t.border = ceil((t.pcriterion / max(t.data(:)))*1000);
+        % temp.colormap = [repmat([0.5 0.5 0.5],temp.border,1); [linspace(0,1,100-temp.border)' repmat(0,100-temp.border,1) linspace(1,0,100-temp.border)']];
+        t.colormap = [repmat(linspace(1,0.3,t.border)',1,3); [linspace(0,1,1000-t.border)' zeros(1000-t.border,1) linspace(1,0,1000-t.border)']];
+    end
+
+    h.s2(i_con)=subplot(2,size(t.data_ind_coll_ttp,2),i_con+size(t.data_ind_coll_ttp,2));
+    topoplot( t.data, TFA.electrodes(1:64), ...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',t.clim,'conv','on','colormap',t.colormap);
+    title(sprintf('respective t-values'))
+    h.cb2 = colorbar;
+    t.yticks = get(h.cb2,'YTick');
+    set(h.cb2,'YTick',pl.pcorrect(1:find(pl.pcorrect<t.clim(end),1,'last')), ...
+        'YTickLabel',pl.plegend(1:find(pl.pcorrect<t.clim(end),1,'last')))
+
+end
+
+
+
 
 %% extract amplitude values for FFT
 % plotting parameters
@@ -259,10 +453,20 @@ pl.elec2plot = {{'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'P8';
 %     {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'}, 'left'; ...
 %     {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'}, 'right'};
 
-% % only center for periphery
-% pl.elec2plot = {{'POz';'O1';'Oz';'I2';'Iz'}, 'center';...
-%     {'POz';'Oz';'O1';'PO3'}, 'left'; ...
-%     {'POz';'Oz';'O2';'PO4'}, 'right'};
+% small adapted
+pl.elec2plot = {{'Oz';'Iz'}, 'center';...
+    {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+
+% small adapted II
+pl.elec2plot = {{'Oz';'Iz';'O1';'O2'}, 'center';...
+    {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+
+% very large center
+pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
+    {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -366,13 +570,15 @@ R_Mat.all_table = cell2table(R_Mat.all(2:end,:), "VariableNames",R_Mat.all(1,:))
 
 
 t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
-t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
+% t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
 t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % write to textfile
 % xlswrite(fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),R_Mat.all)
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),'Delimiter',';')
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
-% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_pericenter_allsubs_%s.csv',t.datestr)),'Delimiter',';')
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_smallclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largecenterclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
+
 
 %% actual plotting data | TFA Grand Mean timecourse
 % plotting parameters

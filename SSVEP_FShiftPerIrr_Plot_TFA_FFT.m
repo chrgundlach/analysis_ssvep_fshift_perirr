@@ -6,7 +6,7 @@ F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput'
 % F.Subs2use              = [1:13 15:21];
 % changed experiment from participant 22 onwards (stimuli isoluminant to
 % background and used other frequencies
-F.Subs2use              = [1:13 15:38];
+F.Subs2use              = [1:13 15:40];
                         
 F.TFA.baseline          = [-500 -250];
 
@@ -209,9 +209,9 @@ topoplot(find(any(cell2mat(pl.elec2plot_i))),TFA(1).electrodes(1:64),'style','bl
 %% plot Grand Mean FFT data | topoplot for positions (as frequencies are random)
 pl.time2plot = [1:3];
 pl.time2plot = [1];
-pl.pos2plot='center';
+% pl.pos2plot='center';
 % pl.pos2plot='right';
-% pl.pos2plot='left';
+pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];
 pl.sub2sel = 1:numel(F.Subs2use);
 % pl.sub2sel = find(F.Subs2use<22); % luminance offset
@@ -464,9 +464,9 @@ pl.elec2plot = {{'Oz';'Iz';'O1';'O2'}, 'center';...
     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
 % very large center
-pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
-    {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
-    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+% pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
+%     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+%     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -569,8 +569,8 @@ R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modul
 R_Mat.all_table = cell2table(R_Mat.all(2:end,:), "VariableNames",R_Mat.all(1,:));
 
 
-t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
-% t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
+% t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
+t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
 t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % write to textfile
 % xlswrite(fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),R_Mat.all)

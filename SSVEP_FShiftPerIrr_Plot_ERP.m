@@ -4,7 +4,7 @@ F.PathInEEG             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_
 F.PathInEEG             = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\erp'; 
 
 F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:40,'UniformOutput',false)';
-F.Subs2use              = [1:13 15:34]; 
+F.Subs2use              = [1:13 15:40]; 
                         % 1 to 22
                         % for subject 12, 14, 39: eeg and behavior data don't match
 
@@ -221,7 +221,7 @@ topoplot(find(pl.elec2plot_i),EP.electrodes(1:64),'style','blank','electrodes', 
 
 set(gcf, 'Color', [1 1 1]);
 
-%% plot ERPs exploratively for specified electrodes | event type  by between subject factor stimulus luminance
+%% plot ERPs exploratively for specified electrodes | event type  by between subject factor stimulus luminance 
 % adapted to run with between subject contrasts
 
 % loop through conditions defined in contrasts
@@ -234,7 +234,7 @@ pl.sub2plot = 1:numel(F.Subs2use);
 % pl.elec2plot = {'P7';'PO7';'P9';'O1';'I1';'Oz'; 'Iz';'O2';'I2';'P8';'PO8';'P10';}; % for N2 component posterior!
 % pl.elec2plot = {'P3';'P1';'Pz';'P4';'P2';'POz';'PO3';'PO4'}; % for P300 component centro-parietal!
 % pl.elec2plot = {'POz';'Oz';'O1';'O2';'Iz'}; % for N1 component centro-parietal
-pl.elec2plot = {'P6';'P8';'PO8';'P10';'P5';'P7';'PO7';'P9'}; % for N2 component lateral
+% pl.elec2plot = {'P6';'P8';'PO8';'P10';'P5';'P7';'PO7';'P9'}; % for N2 component lateral
 
 % pl.elec2plot = {'POz'}; % early N2 SN?
 % pl.elec2plot = {'CPz';'Cz'}; % early N2 SN?
@@ -346,8 +346,8 @@ set(gcf, 'Color', [1 1 1]);
 
 
 
-%% plot ERPs exploratively for specified electrodes | event type  by between subject factor stimulus luminance
-% adapted to run with between subject contrasts
+%% plot ERPs exploratively for specified electrodes | event type  by between subject factor stimulus luminance | running t-tests
+% adapted to run with between subject contrasts 
 % running ANOVA doesn't work!
 
 % loop through conditions defined in contrasts
@@ -356,8 +356,8 @@ pl.con_contrast = {... % contrasts by 1st dim; averaged across second dim
 %     'evnt_type_label', {{'chroma+'}}; ...
     'stim_luminance', {{'offset_to_bckgrd'};{'isolum__to_bckgrd'}}};
 pl.sub2plot = 1:numel(F.Subs2use);
-% pl.elec2plot = {'P8';'PO8';'P10';'P7';'PO7';'P9'}; % for P1 component lateral !
-pl.elec2plot = {'P7';'PO7';'P9';'O1';'I1';'Oz'; 'Iz';'O2';'I2';'P8';'PO8';'P10';}; % for N2 component posterior!
+pl.elec2plot = {'P8';'PO8';'P10';'P7';'PO7';'P9'}; % for P1 component lateral !
+% pl.elec2plot = {'P7';'PO7';'P9';'O1';'I1';'Oz'; 'Iz';'O2';'I2';'P8';'PO8';'P10';}; % for N2 component posterior!
 % pl.elec2plot = {'P3';'P1';'Pz';'P4';'P2';'POz';'PO3';'PO4'}; % for P300 component centro-parietal!
 % pl.elec2plot = {'POz';'Oz';'O1';'O2';'Iz'}; % for N1 component centro-parietal
 % pl.elec2plot = {'P6';'P8';'PO8';'P10';'P5';'P7';'PO7';'P9'}; % for N2 component lateral

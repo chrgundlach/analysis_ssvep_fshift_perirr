@@ -10,7 +10,7 @@ F.PathOut               = fullfile(F.Pathlocal, 'eeg\erp\');
 F.subjects              = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput',false)';
 % F.sub2use               = [1:13 15:24];%:53;
 % F.sub2use               = [1 3 4 5 6 7 9 10 11 13 15 18 20 21 22 23 24 25];%:53; % for subject 12, 14: eeg and behavior data don't match
-F.sub2use               = [35 36];%:53;
+F.sub2use               = [37:40];%:53;
 
 F.trigger               = {[201] [202]}; % target distractor
 

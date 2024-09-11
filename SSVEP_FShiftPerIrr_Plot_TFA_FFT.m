@@ -6,7 +6,7 @@ F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput'
 % F.Subs2use              = [1:13 15:21];
 % changed experiment from participant 22 onwards (stimuli isoluminant to
 % background and used other frequencies
-F.Subs2use              = [1:13 15:40];
+F.Subs2use              = [1:13 15:41 43];
                         
 F.TFA.baseline          = [-500 -250];
 
@@ -40,6 +40,7 @@ F.conRDKcolattended_label2 = F.conRDKcolattended_label;
 [F.conRDKcolattended_label2{[18 23]}] = deal('not attended + irrelevant');
 [F.conRDKcolattended_label2{[27 28]}] = deal('irrelevant + attended');
 [F.conRDKcolattended_label2{[29 30]}] = deal('irrelevant + not attended');
+%[F.conRDKcolattended_label2{strcmp(F.conRDKpresent_label,'not presented')}] = deal('not presented');
 
 
 pl.plegend = {'1';'0.5';'0.25';'0.1';'0.05';'0.01';'0.001';'0.0001';'0.00001'};
@@ -340,8 +341,8 @@ t.data_ind_coll_bc = squeeze(mean(t.data_ind_coll_bc,2));
 t.data_evo_coll_bc = squeeze(mean(t.data_evo_coll_bc,2));
 
 % difference between conditions
-t.data_ind_coll_bc(:,3,:) = diff(t.data_ind_coll_bc,1,2);
-t.data_evo_coll_bc(:,3,:) = diff(t.data_evo_coll_bc,1,2);
+t.data_ind_coll_bc(:,3,:) = diff(fliplr(t.data_ind_coll_bc),1,2);
+t.data_evo_coll_bc(:,3,:) = diff(fliplr(t.data_evo_coll_bc),1,2);
 
 t.data_ind_coll_bc_m = mean(t.data_ind_coll_bc,3);
 t.data_evo_coll_bc_m = mean(t.data_evo_coll_bc,3);
@@ -364,7 +365,7 @@ for i_con = 1:size(t.data_evo_coll_bc_m,2)
     h.s(i_con) = subplot(2,size(t.data_evo_coll_bc,2),i_con);
     pl.clim = [-1 1] *max(abs(t.data_evo_coll_bc_m),[],'all');
     topoplot(t.data_evo_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
-        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',fake_parula,...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',flipud(cbrewer2('RdBu')),...
         'whitebk','on');
     title(sprintf('evoked SSVEP mod | %s\n[%1.0f %1.0f]ms', ...
         pl.conlabel{i_con}, TFA.ffttimewin{pl.time2plot}*1000))
@@ -387,7 +388,7 @@ for i_con = 1:size(t.data_evo_coll_ttp,2)
 
     h.s2(i_con)=subplot(2,size(t.data_evo_coll_ttp,2),i_con+size(t.data_ind_coll_ttp,2));
     topoplot( t.data, TFA.electrodes(1:64), ...
-        'shading', 'interp', 'numcontour', 0, 'maplimits',t.clim,'conv','on','colormap',t.colormap);
+        'shading', 'interp', 'numcontour', 0, 'maplimits',t.clim,'conv','on','colormap',t.colormap,'whitebk','on');
     title(sprintf('respective t-values'))
     h.cb2 = colorbar;
     t.yticks = get(h.cb2,'YTick');
@@ -407,7 +408,7 @@ for i_con = 1:size(t.data_ind_coll_bc_m,2)
     h.s(i_con) = subplot(2,size(t.data_ind_coll_bc_m,2),i_con);
     pl.clim = [-1 1] *max(abs(t.data_ind_coll_bc_m),[],'all');
     topoplot(t.data_ind_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
-        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',fake_parula,...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',flipud(cbrewer2('RdBu')),...
         'whitebk','on');
     title(sprintf('induced SSVEP mod | %s\n[%1.0f %1.0f]ms', ...
         pl.conlabel{i_con}, TFA.ffttimewin{pl.time2plot}*1000))
@@ -430,7 +431,7 @@ for i_con = 1:size(t.data_evo_coll_ttp,2)
 
     h.s2(i_con)=subplot(2,size(t.data_ind_coll_ttp,2),i_con+size(t.data_ind_coll_ttp,2));
     topoplot( t.data, TFA.electrodes(1:64), ...
-        'shading', 'interp', 'numcontour', 0, 'maplimits',t.clim,'conv','on','colormap',t.colormap);
+        'shading', 'interp', 'numcontour', 0, 'maplimits',t.clim,'conv','on','colormap',t.colormap, 'whitebk','on');
     title(sprintf('respective t-values'))
     h.cb2 = colorbar;
     t.yticks = get(h.cb2,'YTick');
@@ -439,7 +440,187 @@ for i_con = 1:size(t.data_evo_coll_ttp,2)
 
 end
 
+%% plot FFT data modulation | topoplot effects for peripheral stimuli
+pl.time_base = 1;
+pl.time2plot = [2];
+pl.pos2plot= {'left'; 'right'};
+pl.freqrange=[-0.1 0.1];
+pl.sub2sel = 1:numel(F.Subs2use);
+% pl.sub2sel = find(F.Subs2use<22); % luminance offset
+pl.sub2sel = find(F.Subs2use>21); % isoluminant to background
+pl.con2plot = unique(F.conRDKcolattended_label(:,3:end));
 
+
+% extract data differently [is it converging?]
+% first, extract data for all of them
+pl.data_ind = []; pl.data_evo = [];
+t.data_ind = nan(numel(TFA.electrodes),numel(TFA.RDK(1).RDK),numel(F.conlabel_att),numel(TFA.ffttimewin),numel(pl.sub2sel));
+t.data_evo = t.data_ind;
+t.data_freq = t.data_ind; 
+t.dat_position = repmat({''},size(t.data_ind));
+t.data_ispresent = permute(repmat(F.conRDKpresent',[1 1 numel(TFA.electrodes) numel(pl.sub2sel)]), [3 1 2 4]); 
+for i_sub = 1:numel(pl.sub2sel)
+    for i_rdk = 1:numel(TFA.RDK(1).RDK)
+        t.freq = TFA.RDK(pl.sub2sel(i_sub)).RDK(i_rdk).freq; % which SSVEP frequency?
+        t.idx = dsearchn(TFA.fftfreqs',(pl.freqrange+t.freq)');
+        
+        % check for position of peripheral stimulus
+        if strcmp(TFA.RDK(pl.sub2sel(i_sub)).RDK(i_rdk).poslabel,'right')
+            t.elec_idx = eeg_elec_hemisphere_collapse({TFA.electrodes.labels},2);
+        else
+            t.elec_idx = 1:64;
+        end
+
+        % extract data
+        t.data_ind(:,i_rdk,:,:,i_sub) = squeeze(mean(TFA.fftdata_ind(t.idx(1):t.idx(2),t.elec_idx,:,:,pl.sub2sel(i_sub)),[1]));
+        t.data_evo(:,i_rdk,:,:,i_sub) = squeeze(mean(TFA.fftdata_evo(t.idx(1):t.idx(2),t.elec_idx,:,:,pl.sub2sel(i_sub)),[1]));
+        
+        % write some data
+        t.data_freq(:,i_rdk,:,i_sub) = t.freq;
+        [t.dat_position{:,i_rdk,:,:,i_sub}] = deal(TFA.RDK(pl.sub2sel(i_sub)).RDK(i_rdk).poslabel);
+        
+    end
+end
+
+% now extract the data and collapse across RDKs
+t.rdkidx = [3 4 5];
+t.data_ind_coll = nan(numel(TFA.electrodes),numel(t.rdkidx),numel(pl.con2plot),numel(TFA.ffttimewin),numel(pl.sub2sel));
+t.data_evo_coll = t.data_ind_coll;
+for i_rdk = 1:numel(t.rdkidx)
+    for i_con = 1:numel(pl.con2plot)
+        t.conidx = strcmp(F.conRDKcolattended_label(:,t.rdkidx(i_rdk)),pl.con2plot{i_con}) & F.conRDKpresent(:,t.rdkidx(i_rdk));
+        t.data_ind_coll(:,i_rdk,i_con,:,:) = mean(t.data_ind(:,t.rdkidx(i_rdk),t.conidx,:,:),3);
+        t.data_evo_coll(:,i_rdk,i_con,:,:) = mean(t.data_evo(:,t.rdkidx(i_rdk),t.conidx,:,:),3);
+    end
+end
+
+% t.data_ind_coll_bc = ((mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) ./ t.data_ind_coll(:,:,:,pl.time_base,:))-1)*100;
+% t.data_evo_coll_bc = ((mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) ./ t.data_evo_coll(:,:,:,pl.time_base,:))-1)*100;
+t.data_ind_coll_bc = mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) - t.data_ind_coll(:,:,:,pl.time_base,:);
+t.data_evo_coll_bc = mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) - t.data_evo_coll(:,:,:,pl.time_base,:);
+
+% collapse across RDKs
+t.data_ind_coll_bc = squeeze(mean(t.data_ind_coll_bc,2,"omitnan"));
+t.data_evo_coll_bc = squeeze(mean(t.data_evo_coll_bc,2,"omitnan"));
+
+% difference between conditions
+t.contrasts = [1 2; 1 3; 2 3];
+for i_cont = 1:size(t.contrasts,1)
+    t.data_ind_coll_bc(:,end+1,:) = diff(t.data_ind_coll_bc(:,fliplr(t.contrasts(i_cont,:)),:),1,2);
+    t.data_evo_coll_bc(:,end+1,:) = diff(t.data_evo_coll_bc(:,fliplr(t.contrasts(i_cont,:)),:),1,2);
+end
+
+t.data_ind_coll_bc_m = mean(t.data_ind_coll_bc,3);
+t.data_evo_coll_bc_m = mean(t.data_evo_coll_bc,3);
+
+% do ttests
+[t.data_ind_coll_ttp t.data_evo_coll_ttp] = deal(nan(size(t.data_ind_coll_bc_m)));
+
+for i_con = 1:size(t.data_ind_coll_ttp,2)
+    [tt.h t.data_ind_coll_ttp(:,i_con) tt.ci tt.stats] = ttest(squeeze(t.data_ind_coll_bc(:,i_con,:))');
+    [tt.h t.data_evo_coll_ttp(:,i_con) tt.ci tt.stats] = ttest(squeeze(t.data_evo_coll_bc(:,i_con,:))');
+end
+
+% evoked
+figure;
+set(gcf,'Position',[100 100 1400 400],'PaperPositionMode','auto')
+pl.conlabel = pl.con2plot;
+for i_cont = 1:size(t.contrasts,1)
+    pl.conlabel{end+1} = sprintf('diff %s - %s',pl.con2plot{t.contrasts(i_cont,:)});
+end
+
+% modulations
+for i_con = 1:size(t.data_evo_coll_bc_m,2)
+    h.s(i_con) = subplot(2,size(t.data_evo_coll_bc,2),i_con);
+    pl.clim = [-1 1] *max(abs(t.data_evo_coll_bc_m),[],'all');
+%     topoplot(t.data_evo_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
+%         'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',fake_parula,...
+%         'whitebk','on');
+    topoplot(t.data_evo_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',flipud(cbrewer2('RdBu')),...
+        'whitebk','on');
+   
+    title(sprintf('evoked SSVEP mod | [%1.0f %1.0f]ms\n%s', ...
+        TFA.ffttimewin{pl.time2plot}*1000, pl.conlabel{i_con}), ...
+        'FontSize',6)
+    colorbar
+end
+
+% uncorrected t-values
+for i_con = 1:size(t.data_evo_coll_ttp,2)
+    t.data = abs(log10(t.data_evo_coll_ttp(:,i_con)));
+    t.clim = [0 max(t.data(:))];
+    t.pcriterion = abs(log10(0.05));
+    if max(t.data(:))<t.pcriterion
+        % temp.colormap = repmat([0.5 0.5 0.5],100,1);
+        t.colormap = repmat(linspace(1,0.3,1000)',1,3);
+    else
+        t.border = ceil((t.pcriterion / max(t.data(:)))*1000);
+        % temp.colormap = [repmat([0.5 0.5 0.5],temp.border,1); [linspace(0,1,100-temp.border)' repmat(0,100-temp.border,1) linspace(1,0,100-temp.border)']];
+        t.colormap = [repmat(linspace(1,0.3,t.border)',1,3); [linspace(0,1,1000-t.border)' zeros(1000-t.border,1) linspace(1,0,1000-t.border)']];
+    end
+
+    h.s2(i_con)=subplot(2,size(t.data_evo_coll_ttp,2),i_con+size(t.data_ind_coll_ttp,2));
+    topoplot( t.data, TFA.electrodes(1:64), ...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',t.clim,'conv','on','colormap',t.colormap, 'whitebk','on');
+    title(sprintf('respective t-values'), 'FontSize',6)
+    h.cb2 = colorbar;
+    t.yticks = get(h.cb2,'YTick');
+    set(h.cb2,'YTick',pl.pcorrect(1:find(pl.pcorrect<t.clim(end),1,'last')), ...
+        'YTickLabel',pl.plegend(1:find(pl.pcorrect<t.clim(end),1,'last')))
+
+end
+
+
+% induced
+figure;
+set(gcf,'Position',[100 100 1400 400],'PaperPositionMode','auto')
+pl.conlabel = pl.con2plot;
+for i_cont = 1:size(t.contrasts,1)
+    pl.conlabel{end+1} = sprintf('diff %s - %s',pl.con2plot{t.contrasts(i_cont,:)});
+end
+
+% modulations
+for i_con = 1:size(t.data_evo_coll_bc_m,2)
+    h.s(i_con) = subplot(2,size(t.data_ind_coll_bc,2),i_con);
+    pl.clim = [-1 1] *max(abs(t.data_ind_coll_bc_m),[],'all');
+%     topoplot(t.data_evo_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
+%         'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',fake_parula,...
+%         'whitebk','on');
+    topoplot(t.data_ind_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',flipud(cbrewer2('RdBu')),...
+        'whitebk','on');    
+   
+    title(sprintf('evoked SSVEP mod | [%1.0f %1.0f]ms\n%s', ...
+        TFA.ffttimewin{pl.time2plot}*1000, pl.conlabel{i_con}), ...
+        'FontSize',6)
+    colorbar
+end
+
+% uncorrected t-values
+for i_con = 1:size(t.data_evo_coll_ttp,2)
+    t.data = abs(log10(t.data_ind_coll_ttp(:,i_con)));
+    t.clim = [0 max(t.data(:))];
+    t.pcriterion = abs(log10(0.05));
+    if max(t.data(:))<t.pcriterion
+        % temp.colormap = repmat([0.5 0.5 0.5],100,1);
+        t.colormap = repmat(linspace(1,0.3,1000)',1,3);
+    else
+        t.border = ceil((t.pcriterion / max(t.data(:)))*1000);
+        % temp.colormap = [repmat([0.5 0.5 0.5],temp.border,1); [linspace(0,1,100-temp.border)' repmat(0,100-temp.border,1) linspace(1,0,100-temp.border)']];
+        t.colormap = [repmat(linspace(1,0.3,t.border)',1,3); [linspace(0,1,1000-t.border)' zeros(1000-t.border,1) linspace(1,0,1000-t.border)']];
+    end
+
+    h.s2(i_con)=subplot(2,size(t.data_ind_coll_ttp,2),i_con+size(t.data_ind_coll_ttp,2));
+    topoplot( t.data, TFA.electrodes(1:64), ...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',t.clim,'conv','on','colormap',t.colormap, 'whitebk','on');
+    title(sprintf('respective t-values'), 'FontSize',6)
+    h.cb2 = colorbar;
+    t.yticks = get(h.cb2,'YTick');
+    set(h.cb2,'YTick',pl.pcorrect(1:find(pl.pcorrect<t.clim(end),1,'last')), ...
+        'YTickLabel',pl.plegend(1:find(pl.pcorrect<t.clim(end),1,'last')))
+
+end
 
 
 %% extract amplitude values for FFT
@@ -464,9 +645,9 @@ pl.elec2plot = {{'Oz';'Iz';'O1';'O2'}, 'center';...
     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
 % very large center
-% pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
-%     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
-%     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
+    {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -538,8 +719,8 @@ end
 % baseline corrected data
 pl.RDK.data_ind_bc = 100*(bsxfun(@rdivide, pl.RDK.data_ind, pl.RDK.data_ind(:,:,1,:))-1);
 pl.RDK.data_evo_bc = 100*(bsxfun(@rdivide, pl.RDK.data_evo, pl.RDK.data_evo(:,:,1,:))-1);
-% pl.RDK.data_ind_bc = bsxfun(@minus,  pl.RDK.data_ind, pl.RDK.data_ind(:,:,1,:));
-% pl.RDK.data_evo_bc = bsxfun(@minus, pl.RDK.data_evo, pl.RDK.data_evo(:,:,1,:));
+pl.RDK.data_ind_bc_sub = bsxfun(@minus,  pl.RDK.data_ind, pl.RDK.data_ind(:,:,1,:));
+pl.RDK.data_evo_bc_sub = bsxfun(@minus, pl.RDK.data_evo, pl.RDK.data_evo(:,:,1,:));
 
 
 % % do some interim plotting for checking everything
@@ -559,9 +740,11 @@ pl.RDK.data_evo_bc = 100*(bsxfun(@rdivide, pl.RDK.data_evo, pl.RDK.data_evo(:,:,
 % figure; histfit(diff(mean(t.tdata,3,'omitnan'),1,2),20)
 % [tt.h,tt.p,tt.ci,tt.stats] = ttest(diff(mean(t.tdata,3,'omitnan'),1,2));
 
-R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modulation_evoked','subjects', 'condition', 'time', ...
+R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modulation_evoked','subtraction_induced','subtraction_evoked', ...
+    'subjects', 'condition', 'time', ...
     'RDK_id', 'RDK_position1','RDK_position2', 'RDK_freq', 'RDK_color','RDK_colorlum', 'RDK_ispresented', 'RDK_isattended', 'RDK_isattended2', 'RDK_electrodes'}; ...
-    num2cell([pl.RDK.data_ind(:) pl.RDK.data_evo(:) pl.RDK.data_ind_bc(:) pl.RDK.data_evo_bc(:) pl.RDK.sub(:) pl.RDK.con(:)]) ...
+    num2cell([pl.RDK.data_ind(:) pl.RDK.data_evo(:) pl.RDK.data_ind_bc(:) pl.RDK.data_evo_bc(:) pl.RDK.data_ind_bc_sub(:) pl.RDK.data_ind_bc_sub(:) ...
+    pl.RDK.sub(:) pl.RDK.con(:)]) ...
     pl.RDK.timewin(:) pl.RDK.RDK_id(:) pl.RDK.RDK_pos1(:) pl.RDK.RDK_pos2(:) num2cell(pl.RDK.RDK_freq(:)) pl.RDK.RDK_color(:) ...
     pl.RDK.RDK_colorlum(:) pl.RDK.RDK_ispresent(:) pl.RDK.RDK_isattended(:) pl.RDK.RDK_isattended2(:) pl.RDK.RDK_electrodes(:)
     ];

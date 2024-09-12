@@ -494,10 +494,10 @@ for i_rdk = 1:numel(t.rdkidx)
     end
 end
 
-% t.data_ind_coll_bc = ((mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) ./ t.data_ind_coll(:,:,:,pl.time_base,:))-1)*100;
-% t.data_evo_coll_bc = ((mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) ./ t.data_evo_coll(:,:,:,pl.time_base,:))-1)*100;
-t.data_ind_coll_bc = mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) - t.data_ind_coll(:,:,:,pl.time_base,:);
-t.data_evo_coll_bc = mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) - t.data_evo_coll(:,:,:,pl.time_base,:);
+t.data_ind_coll_bc = ((mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) ./ t.data_ind_coll(:,:,:,pl.time_base,:))-1)*100;
+t.data_evo_coll_bc = ((mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) ./ t.data_evo_coll(:,:,:,pl.time_base,:))-1)*100;
+% t.data_ind_coll_bc = mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) - t.data_ind_coll(:,:,:,pl.time_base,:);
+% t.data_evo_coll_bc = mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) - t.data_evo_coll(:,:,:,pl.time_base,:);
 
 % collapse across RDKs
 t.data_ind_coll_bc = squeeze(mean(t.data_ind_coll_bc,2,"omitnan"));
@@ -591,7 +591,7 @@ for i_con = 1:size(t.data_evo_coll_bc_m,2)
         'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',flipud(cbrewer2('RdBu')),...
         'whitebk','on');    
    
-    title(sprintf('evoked SSVEP mod | [%1.0f %1.0f]ms\n%s', ...
+    title(sprintf('induced SSVEP mod | [%1.0f %1.0f]ms\n%s', ...
         TFA.ffttimewin{pl.time2plot}*1000, pl.conlabel{i_con}), ...
         'FontSize',6)
     colorbar
@@ -645,7 +645,12 @@ pl.elec2plot = {{'Oz';'Iz';'O1';'O2'}, 'center';...
     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
 % very large center
-pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
+% pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
+%     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+%     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+
+% large center as in tango
+pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
@@ -722,6 +727,31 @@ pl.RDK.data_evo_bc = 100*(bsxfun(@rdivide, pl.RDK.data_evo, pl.RDK.data_evo(:,:,
 pl.RDK.data_ind_bc_sub = bsxfun(@minus,  pl.RDK.data_ind, pl.RDK.data_ind(:,:,1,:));
 pl.RDK.data_evo_bc_sub = bsxfun(@minus, pl.RDK.data_evo, pl.RDK.data_evo(:,:,1,:));
 
+% % trouble shooting do subtraction and modulation correspond?
+% % pl.tdata = reshape(squeeze(pl.RDK.data_evo_bc(1:2,:,2,:)),[],size(pl.RDK.data_evo_bc,4));
+% % pl.tdata(:,:,2) = reshape(squeeze(pl.RDK.data_evo_bc_sub(1:2,:,2,:)),[],size(pl.RDK.data_evo_bc,4)).*10;
+% pl.tdata = reshape(squeeze(mean(pl.RDK.data_evo_bc(1:2,:,2,:),1)),[],size(pl.RDK.data_evo_bc,4));
+% pl.tdata(:,:,2) = reshape(squeeze(mean(pl.RDK.data_evo_bc_sub(1:2,:,2,:),1)),[],size(pl.RDK.data_evo_bc,4)).*10;
+% figure;
+% for i_sub = 1:size(pl.tdata,2)
+% %     plot([-0.25 +0.25]+i_sub, squeeze(pl.tdata(:,i_sub,:)),'Color',[0.3 0.3 0.3 0.5])
+%     plot([-0.25 +0.25]+i_sub, sign(squeeze(pl.tdata(:,i_sub,:))),'Color',[0.3 0.3 0.3 0.5])
+%     hold on
+% end
+% 
+% pl.tdata = reshape(squeeze(diff(sign(pl.RDK.data_evo_bc(1:2,:,2,:)),1,1)),[],size(pl.RDK.data_evo_bc,4));
+% pl.tdata(:,:,2) = reshape(squeeze(diff(sign(pl.RDK.data_evo_bc_sub(1:2,:,2,:)),1,1)),[],size(pl.RDK.data_evo_bc,4));
+% figure;
+% for i_sub = 1:size(pl.tdata,2)
+%     plot([-0.25 +0.25]+i_sub, ...
+%         squeeze(pl.tdata(:,i_sub,:))+repmat(((randn(size(pl.tdata,1),1)-0.5).*0.1),1,2), ...
+%         'Color',[0.3 0.3 0.3 0.5])
+% %     plot([-0.25 +0.25]+i_sub, sign(squeeze(pl.tdata(:,i_sub,:))),'Color',[0.3 0.3 0.3 0.5])
+%     hold on
+% end
+% figure; plot(sign(pl.RDK.data_evo_bc_sub(:)), sign(pl.RDK.data_evo_bc(:)))
+% figure; plot(sign(R_Mat.all_table.modulation_evoked), sign(R_Mat.all_table.subtraction_evoked))
+
 
 % % do some interim plotting for checking everything
 % t.tdata = cat(3, ...
@@ -743,7 +773,7 @@ pl.RDK.data_evo_bc_sub = bsxfun(@minus, pl.RDK.data_evo, pl.RDK.data_evo(:,:,1,:
 R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modulation_evoked','subtraction_induced','subtraction_evoked', ...
     'subjects', 'condition', 'time', ...
     'RDK_id', 'RDK_position1','RDK_position2', 'RDK_freq', 'RDK_color','RDK_colorlum', 'RDK_ispresented', 'RDK_isattended', 'RDK_isattended2', 'RDK_electrodes'}; ...
-    num2cell([pl.RDK.data_ind(:) pl.RDK.data_evo(:) pl.RDK.data_ind_bc(:) pl.RDK.data_evo_bc(:) pl.RDK.data_ind_bc_sub(:) pl.RDK.data_ind_bc_sub(:) ...
+    num2cell([pl.RDK.data_ind(:) pl.RDK.data_evo(:) pl.RDK.data_ind_bc(:) pl.RDK.data_evo_bc(:) pl.RDK.data_ind_bc_sub(:) pl.RDK.data_evo_bc_sub(:) ...
     pl.RDK.sub(:) pl.RDK.con(:)]) ...
     pl.RDK.timewin(:) pl.RDK.RDK_id(:) pl.RDK.RDK_pos1(:) pl.RDK.RDK_pos2(:) num2cell(pl.RDK.RDK_freq(:)) pl.RDK.RDK_color(:) ...
     pl.RDK.RDK_colorlum(:) pl.RDK.RDK_ispresent(:) pl.RDK.RDK_isattended(:) pl.RDK.RDK_isattended2(:) pl.RDK.RDK_electrodes(:)
@@ -752,8 +782,8 @@ R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modul
 R_Mat.all_table = cell2table(R_Mat.all(2:end,:), "VariableNames",R_Mat.all(1,:));
 
 
-% t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
-t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
+t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
+% t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
 t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % write to textfile
 % xlswrite(fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),R_Mat.all)
@@ -761,6 +791,7 @@ t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_smallclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largecenterclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_centerclustTangoStudy_allsubs_%s.csv',t.datestr)),'Delimiter',';')
 
 
 %% actual plotting data | TFA Grand Mean timecourse

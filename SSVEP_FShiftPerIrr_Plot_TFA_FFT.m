@@ -6,7 +6,8 @@ F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput'
 % F.Subs2use              = [1:13 15:21];
 % changed experiment from participant 22 onwards (stimuli isoluminant to
 % background and used other frequencies
-F.Subs2use              = [1:13 15:41 43];
+% participant 42 has lower trial number
+F.Subs2use              = [1:13 15:41 43:48];
                         
 F.TFA.baseline          = [-500 -250];
 
@@ -134,9 +135,9 @@ pl.elec2plot = {{'Oz';'Iz';'O1';'O2'}, 'center';...
     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
 % % very large center
-% pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
-%     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
-%     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'}, 'center';...
+    {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -283,8 +284,6 @@ colorbar
 pl.time_base = 1;
 pl.time2plot = [2];
 pl.pos2plot='center';
-% pl.pos2plot='right';
-% pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];
 pl.sub2sel = 1:numel(F.Subs2use);
 % pl.sub2sel = find(F.Subs2use<22); % luminance offset
@@ -494,10 +493,10 @@ for i_rdk = 1:numel(t.rdkidx)
     end
 end
 
-t.data_ind_coll_bc = ((mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) ./ t.data_ind_coll(:,:,:,pl.time_base,:))-1)*100;
-t.data_evo_coll_bc = ((mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) ./ t.data_evo_coll(:,:,:,pl.time_base,:))-1)*100;
-% t.data_ind_coll_bc = mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) - t.data_ind_coll(:,:,:,pl.time_base,:);
-% t.data_evo_coll_bc = mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) - t.data_evo_coll(:,:,:,pl.time_base,:);
+% t.data_ind_coll_bc = ((mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) ./ t.data_ind_coll(:,:,:,pl.time_base,:))-1)*100;
+% t.data_evo_coll_bc = ((mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) ./ t.data_evo_coll(:,:,:,pl.time_base,:))-1)*100;
+t.data_ind_coll_bc = mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) - t.data_ind_coll(:,:,:,pl.time_base,:);
+t.data_evo_coll_bc = mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) - t.data_evo_coll(:,:,:,pl.time_base,:);
 
 % collapse across RDKs
 t.data_ind_coll_bc = squeeze(mean(t.data_ind_coll_bc,2,"omitnan"));
@@ -649,10 +648,21 @@ pl.elec2plot = {{'Oz';'Iz';'O1';'O2'}, 'center';...
 %     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
 %     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
-% large center as in tango
+% large center as in tango | periphery: central and lateral 
 pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+
+% large center as in tango | periphery: only central
+pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
+    {'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'PO2';'POz';'Oz';'O2'}, 'right'};
+
+% % large center as in tango | periphery: only lateral 
+pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
+    {'P8';'P10';'PO8'}, 'left'; ...
+    {'P7';'P9';'PO7'}, 'right'};
+
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -782,8 +792,8 @@ R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modul
 R_Mat.all_table = cell2table(R_Mat.all(2:end,:), "VariableNames",R_Mat.all(1,:));
 
 
-t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
-% t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
+% t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
+t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
 t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % write to textfile
 % xlswrite(fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),R_Mat.all)
@@ -791,7 +801,9 @@ t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largeclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_smallclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_largecenterclust_allsubs_%s.csv',t.datestr)),'Delimiter',';')
-% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_centerclustTangoStudy_allsubs_%s.csv',t.datestr)),'Delimiter',';')
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_TangoStudy_%s.csv',t.datestr)),'Delimiter',';')
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_TangoStudyPeriOnlyCenter_%s.csv',t.datestr)),'Delimiter',';')
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_TangoStudyPeriOnlyLateral_%s.csv',t.datestr)),'Delimiter',';')
 
 
 %% actual plotting data | TFA Grand Mean timecourse

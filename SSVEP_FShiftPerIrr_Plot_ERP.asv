@@ -359,8 +359,8 @@ pl.sub2plot = 1:numel(F.Subs2use);
 % pl.elec2plot = {'P8';'PO8';'P10';'P7';'PO7';'P9'}; % for P1 component lateral !
 % pl.elec2plot = {'P7';'PO7';'P9';'O1';'I1';'Oz'; 'Iz';'O2';'I2';'P8';'PO8';'P10';}; % for N2 component posterior!
 % pl.elec2plot = {'P3';'P1';'Pz';'P4';'P2';'POz';'PO3';'PO4'}; % for P300 component centro-parietal!
-pl.elec2plot = {'POz';'Oz';'O1';'O2';'Iz'}; % for N1 component centro-parietal
-% pl.elec2plot = {'P6';'P8';'PO8';'P10';'P5';'P7';'PO7';'P9'}; % for N2 component lateral
+% pl.elec2plot = {'POz';'Oz';'O1';'O2';'Iz'}; % for N1 component centro-parietal
+pl.elec2plot = {'P6';'P8';'PO8';'P10';'P5';'P7';'PO7';'P9'}; % for N2 component lateral
 
 % pl.elec2plot = {'POz'}; % early N2 SN?
 % pl.elec2plot = {'CPz';'Cz'}; % early N2 SN?
@@ -573,9 +573,6 @@ end
 xlim(pl.time2plot)
 % xlabel('time in ms')
 ylabel('amplitude in \muV/cm²')
-% legend([h.plm2{:}],{pl.contrast.contrast}','Location','northoutside','box','off','Interpreter','none')
-grid on
-set(gca, 'Ydir','reverse')
 
 
 
@@ -592,7 +589,7 @@ ylim([0 size(pl.contrast,2)+1])
 
 legend({pl.contrast.contrast}','Location','southoutside','box','off','Interpreter','none')
 
-h.ax2 = axes('Position', [0.725, .83, .17, .17],'Visible','off');
+h.ax2 = axes('Position', [0.725, .80, .20, .20],'Visible','off');
 topoplot(find(pl.elec2plot_i),EP.electrodes(1:64),'style','blank','electrodes', 'on','whitebk','on',...
     'emarker2',{find(pl.elec2plot_i),'o','r',3,1});
 

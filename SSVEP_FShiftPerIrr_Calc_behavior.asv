@@ -92,7 +92,6 @@ for i_sub = 1:numel(p.subs2use)
     %% check for false alarms?
     response_FA(i_sub).subject = p.subs2use(i_sub);
     response_FA(i_sub).FA_proper = sum(strcmpi({data_events.response},'FA_proper'));
-    response_FA(i_sub).CR = sum(strcmpi({data_events.response},'CR'));
     response_FA(i_sub).FA_proper_rate = sum(strcmpi({data_events.response},'FA_proper'))./ ( ...
         sum(strcmpi({data_events.response},'FA_proper')) + sum(strcmpi({data_events.response},'CR')));
     response_FA(i_sub).FA = ...

@@ -8,9 +8,9 @@ F.PathInEEG             = fullfile(F.Pathlocal, 'eeg\epoch\');
 F.PathInBehavior        = fullfile(F.Pathlocal, 'behavior\');
 F.PathInSCADS           = fullfile(F.Pathlocal, 'eeg\SCADS\');
 F.PathOut               = fullfile(F.Pathlocal, 'eeg\tfa\'); % with FWHM 0.5
-F.subjects              = arrayfun(@(x) sprintf('%02.0f',x),1:50,'UniformOutput',false)';
+F.subjects              = arrayfun(@(x) sprintf('%02.0f',x),1:70,'UniformOutput',false)';
 % F.sub2use               = [6:13 15:18];%:53;
-F.sub2use               = [47 48];%
+F.sub2use               = [51:52];%
 
 % changed experiment from participant 22 onwards (stimuli isoluminant to background
 

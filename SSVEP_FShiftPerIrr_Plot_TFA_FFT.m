@@ -142,7 +142,7 @@ pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';
 % large center as in tango | periphery: central and lateral 
 pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
-    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+    {'P7';'P9';'PO7';'PO4';'POz';'Oz';'O2'}, 'right'};
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -150,27 +150,28 @@ pl.elec2plot_i=cellfun(@(y) ...
 
 
 pl.time2plot = [1];
-pl.time2plot = [1 2 3];
+% pl.time2plot = [1 2 3];
 pl.sub2plot = 1:numel(F.Subs2use);
-% pl.sub2plot = find(F.Subs2use<22); % luminance offset
-% pl.freq2plot=F.SSVEP_Freqs{1}(2);
+pl.sub2plot = find(F.Subs2use<22); % luminance offset
+pl.freq2plot=F.SSVEP_Freqs{1}(1);
 
 pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
-pl.freq2plot=F.SSVEP_Freqs{2}(5);
+pl.freq2plot=F.SSVEP_Freqs{2}(4);
 
 % extract data
 pl.data_ind = nan(size(TFA.fftdata_ind,1), numel(pl.sub2plot)); pl.data_evo = pl.data_ind;
+t.elidx = false(size(pl.elec2plot(:,2),1),numel(pl.sub2plot));
 for i_sub = 1:numel(pl.sub2plot)
     % index position of frequency
     t.rdkidx = [TFA.RDK(pl.sub2plot(i_sub)).RDK.freq]==pl.freq2plot;
     t.posidx = TFA.RDK(pl.sub2plot(i_sub)).RDK(t.rdkidx).poslabel;
-    t.elidx = strcmp(pl.elec2plot(:,2), t.posidx);
+    t.elidx(:,i_sub) = strcmp(pl.elec2plot(:,2), t.posidx);
     % index conditions for which the RDK is shown
     t.conidx = any(t.rdkidx & F.conRDKpresent,2);
 
     % extract data
-    pl.data_ind(:,i_sub) = mean(TFA.fftdata_ind(:,pl.elec2plot_i{t.elidx},t.conidx,pl.time2plot,pl.sub2plot(i_sub)),[2,3,4]);
-    pl.data_evo(:,i_sub) = mean(TFA.fftdata_evo(:,pl.elec2plot_i{t.elidx},t.conidx,pl.time2plot,pl.sub2plot(i_sub)),[2,3,4]);
+    pl.data_ind(:,i_sub) = mean(TFA.fftdata_ind(:,pl.elec2plot_i{t.elidx(:,i_sub)},t.conidx,pl.time2plot,pl.sub2plot(i_sub)),[2,3,4]);
+    pl.data_evo(:,i_sub) = mean(TFA.fftdata_evo(:,pl.elec2plot_i{t.elidx(:,i_sub)},t.conidx,pl.time2plot,pl.sub2plot(i_sub)),[2,3,4]);
 end
 
 
@@ -184,14 +185,14 @@ plot(TFA.fftfreqs,mean(pl.data_ind,2),'Color','k','LineWidth',2)
 
 xlim([0 50])
 xlabel('frequency in Hz')
-ylabel('amplitude in \muV')
+ylabel('amplitude in \muV/m²')
 title(sprintf('induced GrandMean FFT spectra | N = %1.0f | FOI = %1.1f Hz', ...
     numel(pl.sub2plot), pl.freq2plot),'Interpreter','none')
 vline(pl.freq2plot,'k:')
 % draw topography with electrode positions
 h.a1 = axes('position',[0.72 0.75 0.15 0.15],'Visible','off');
 topoplot(find(any(cell2mat(pl.elec2plot_i))),TFA(1).electrodes(1:64),'style','blank','electrodes', 'on','whitebk','on',...
-    'emarker2',{find(any(cell2mat(pl.elec2plot_i))),'o','r',4,1});
+    'emarker2',{find(any(cell2mat(pl.elec2plot_i(any(t.elidx,2))),1)),'o','r',4,1});
 
 subplot(2,1,2)
 hold on;
@@ -199,7 +200,7 @@ plot(TFA.fftfreqs,pl.data_evo,'Color',[0.5 0.5 0.5],'LineWidth',1)
 plot(TFA.fftfreqs,mean(pl.data_evo,2),'Color','k','LineWidth',2)
 xlim([0 50])
 xlabel('frequency in Hz')
-ylabel('amplitude in \muV')
+ylabel('amplitude in \muV/m²')
 title(sprintf('evoked GrandMean FFT spectra | N = %1.0f | FOI = %1.1f Hz', ...
     numel(pl.sub2plot), pl.freq2plot),'Interpreter','none')
 vline(pl.freq2plot,'k:')
@@ -208,17 +209,17 @@ box on
 % draw topography with electrode positions
 h.a1 = axes('position',[0.72 0.28 0.15 0.15],'Visible','off');
 topoplot(find(any(cell2mat(pl.elec2plot_i))),TFA(1).electrodes(1:64),'style','blank','electrodes', 'on','whitebk','on',...
-    'emarker2',{find(any(cell2mat(pl.elec2plot_i))),'o','r',4,1});
+    'emarker2',{find(any(cell2mat(pl.elec2plot_i(any(t.elidx,2))),1)),'o','r',4,1});
 
 
-
+any(t.elidx,2)
 
 %% plot Grand Mean FFT data | topoplot for positions (as frequencies are random)
 pl.time2plot = [1:3];
 pl.time2plot = [1];
 % pl.pos2plot='center';
-% pl.pos2plot='right';
-pl.pos2plot='left';
+pl.pos2plot='right';
+% pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];
 pl.sub2sel = 1:numel(F.Subs2use);
 % pl.sub2sel = find(F.Subs2use<22); % luminance offset
@@ -365,16 +366,7 @@ set(gcf,'Position',[100 100 800 500],'PaperPositionMode','auto')
 pl.conlabel = [F.conRDKcolattended_label(1:2) 'diff'];
 
 % modulations
-for i_con = 1:size(t.data_evo_coll_bc_m,2)
-    h.s(i_con) = subplot(2,size(t.data_evo_coll_bc,2),i_con);
-    pl.clim = [-1 1] *max(abs(t.data_evo_coll_bc_m),[],'all');
-    topoplot(t.data_evo_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
-        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',flipud(cbrewer2('RdBu')),...
-        'whitebk','on');
-    title(sprintf('evoked SSVEP mod | %s\n[%1.0f %1.0f]ms', ...
-        pl.conlabel{i_con}, TFA.ffttimewin{pl.time2plot}*1000))
-    colorbar
-end
+s
 
 % uncorrected t-values
 for i_con = 1:size(t.data_evo_coll_ttp,2)
@@ -498,10 +490,10 @@ for i_rdk = 1:numel(t.rdkidx)
     end
 end
 
-t.data_ind_coll_bc = ((mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) ./ t.data_ind_coll(:,:,:,pl.time_base,:))-1)*100;
-t.data_evo_coll_bc = ((mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) ./ t.data_evo_coll(:,:,:,pl.time_base,:))-1)*100;
-% t.data_ind_coll_bc = mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) - t.data_ind_coll(:,:,:,pl.time_base,:);
-% t.data_evo_coll_bc = mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) - t.data_evo_coll(:,:,:,pl.time_base,:);
+% t.data_ind_coll_bc = ((mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) ./ t.data_ind_coll(:,:,:,pl.time_base,:))-1)*100;
+% t.data_evo_coll_bc = ((mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) ./ t.data_evo_coll(:,:,:,pl.time_base,:))-1)*100;
+t.data_ind_coll_bc = mean(t.data_ind_coll(:,:,:,pl.time2plot,:),4) - t.data_ind_coll(:,:,:,pl.time_base,:);
+t.data_evo_coll_bc = mean(t.data_evo_coll(:,:,:,pl.time2plot,:),4) - t.data_evo_coll(:,:,:,pl.time_base,:);
 
 % collapse across RDKs
 t.data_ind_coll_bc = squeeze(mean(t.data_ind_coll_bc,2,"omitnan"));
@@ -544,7 +536,10 @@ for i_con = 1:size(t.data_evo_coll_bc_m,2)
         'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',flipud(cbrewer2('RdBu')),...
         'whitebk','on');
    
-    title(sprintf('evoked SSVEP mod | [%1.0f %1.0f]ms\n%s', ...
+%     title(sprintf('evoked SSVEP mod | [%1.0f %1.0f]ms\n%s', ...
+%         TFA.ffttimewin{pl.time2plot}*1000, pl.conlabel{i_con}), ...
+%         'FontSize',6)
+    title(sprintf('evoked SSVEP diff | [%1.0f %1.0f]ms\n%s', ...
         TFA.ffttimewin{pl.time2plot}*1000, pl.conlabel{i_con}), ...
         'FontSize',6)
     colorbar
@@ -598,6 +593,7 @@ for i_con = 1:size(t.data_evo_coll_bc_m,2)
     title(sprintf('induced SSVEP mod | [%1.0f %1.0f]ms\n%s', ...
         TFA.ffttimewin{pl.time2plot}*1000, pl.conlabel{i_con}), ...
         'FontSize',6)
+    
     colorbar
 end
 
@@ -653,20 +649,28 @@ pl.elec2plot = {{'Oz';'Iz';'O1';'O2'}, 'center';...
 %     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
 %     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
-% large center as in tango | periphery: central and lateral 
+% large center as in tango | periphery: central and lateral smaller (fits topographies)
 pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
-    {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
+    {'P7';'P9';'PO7';'PO4';'POz';'Oz';'O2'}, 'right'};
 
-% large center as in tango | periphery: only central
-pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
-    {'PO3';'POz';'Oz';'O1'}, 'left'; ...
-    {'PO2';'POz';'Oz';'O2'}, 'right'};
+% % large center as in tango | periphery: only central
+% pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
+%     {'PO3';'POz';'Oz';'O1'}, 'left'; ...
+%     {'PO2';'POz';'Oz';'O2'}, 'right'};
+% 
+% % % large center as in tango | periphery: only lateral 
+% pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
+%     {'P8';'P10';'PO8'}, 'left'; ...
+%     {'P7';'P9';'PO7'}, 'right'};
+% 
+% 
+% % large center as in tango | as in tango periphery: central and lateral 
+% pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
+%     {'P8';'P10';'PO8';'PO4';'O2';'I2';'P3';'P1';'Pz';'P2';'PO3';'POz'}, 'left'; ...
+%     {'P7';'P9';'PO7';'PO3';'O1';'I1';'P4';'P2';'Pz';'P1';'PO4';'POz'}, 'right'};
 
-% % large center as in tango | periphery: only lateral 
-pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
-    {'P8';'P10';'PO8'}, 'left'; ...
-    {'P7';'P9';'PO7'}, 'right'};
+
 
 
 pl.elec2plot_i=cellfun(@(y) ...
@@ -797,8 +801,8 @@ R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modul
 R_Mat.all_table = cell2table(R_Mat.all(2:end,:), "VariableNames",R_Mat.all(1,:));
 
 
-% t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
-t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
+t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
+% t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
 t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % write to textfile
 % xlswrite(fullfile(t.path,sprintf('FFT_Amp_data_largeclust_%s.csv',t.datestr)),R_Mat.all)
@@ -810,13 +814,15 @@ t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_TangoStudyPeriOnlyCenter_%s.csv',t.datestr)),'Delimiter',';')
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_TangoStudyPeriOnlyLateral_%s.csv',t.datestr)),'Delimiter',';')
 
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_CenterTangoStudyPeriSmall_%s.csv',t.datestr)),'Delimiter',';')
+
 
 %% actual plotting data | TFA Grand Mean timecourse
 % plotting parameters
 % pl.elec2plot = {'Oz';'Iz'};
 % pl.elec2plot = {'PO3';'PO4';'POz';'O1';'O2';'Oz';'I1';'I2';'Iz'}; sav.chan_add = 'VisualLarge';
 % pl.elec2plot = {'P9';'P10';'PO7';'PO8';'PO3';'PO4';'POz';'O1';'O2';'Oz';'I1';'I2';'Iz'}; sav.chan_add = 'VisualLarge';% vis alpha II
-pl.elec2plot = {'P5';'P7';'P9';'P6';'P8';'P10';'PO3';'PO7';'PO4';'PO8';'POz';'O1';'O2';'Oz';'I1';'I2';'Iz'}; sav.chan_add = 'VisualLarge';
+pl.elec2plot = {'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}; sav.chan_add = 'VisualLarge'; % as in tango study
 % cluster analysis
 % pl.elec2plot = {TFA.electrodes(1:64).labels}';
 % pl.elec2plot_i=logical(sum(cell2mat(cellfun(@(x) startsWith({TFA(1).electrodes.labels},x), pl.elec2plot, 'UniformOutput',false)),1));
@@ -831,8 +837,8 @@ pl.xlims_i = dsearchn(TFA.time', pl.xlims');
 pl.base = F.TFA.baseline;
 pl.base_i = dsearchn(TFA.time', pl.base');
 
-pl.sub2plot = F.Subs2use;
-% pl.sub2plot = [7];
+% pl.sub2sel = find(F.Subs2use<22); % luminance offset
+pl.sub2sel = find(F.Subs2use>21); % isoluminant to background
 
 pl.data_ind = []; pl.data_evo = []; pl.data_ind_bc = []; pl.data_evo_bc = [];
 pl.conlabel = {'attend RDK1';'attend RDK2'};
@@ -840,12 +846,12 @@ pl.RDKlabel = {'RDK1';'RDK2';'RDK3'};
 pl.timelabel = cellfun(@(x) vararg2str(x),TFA.ffttimewin(pl.time2plot),'UniformOutput',false);
 
 
-pl.data_ind = squeeze(mean(mean(TFA.data_ind(pl.flims_i(1):pl.flims_i(2),pl.xlims_i(1):pl.xlims_i(2),pl.elec2plot_i,:,pl.sub2plot),3),4));
-pl.data_evo = squeeze(mean(mean(TFA.data_evo(pl.flims_i(1):pl.flims_i(2),pl.xlims_i(1):pl.xlims_i(2),pl.elec2plot_i,:,pl.sub2plot),3),4));
+pl.data_ind = squeeze(mean(mean(TFA.data_ind(pl.flims_i(1):pl.flims_i(2),pl.xlims_i(1):pl.xlims_i(2),pl.elec2plot_i,:,pl.sub2sel),3),4));
+pl.data_evo = squeeze(mean(mean(TFA.data_evo(pl.flims_i(1):pl.flims_i(2),pl.xlims_i(1):pl.xlims_i(2),pl.elec2plot_i,:,pl.sub2sel),3),4));
 pl.data_ind_bc = 100*(bsxfun(@rdivide, pl.data_ind, ...
-    mean(squeeze(mean(mean(TFA.data_ind(pl.flims_i(1):pl.flims_i(2),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,pl.sub2plot),3),4)),2))-1);
+    mean(squeeze(mean(mean(TFA.data_ind(pl.flims_i(1):pl.flims_i(2),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,pl.sub2sel),3),4)),2))-1);
 pl.data_evo_bc = 100*(bsxfun(@rdivide, pl.data_evo, ...
-    mean(squeeze(mean(mean(TFA.data_evo(pl.flims_i(1):pl.flims_i(2),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,pl.sub2plot),3),4)),2))-1);
+    mean(squeeze(mean(mean(TFA.data_evo(pl.flims_i(1):pl.flims_i(2),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,pl.sub2sel),3),4)),2))-1);
 
 figure;
 set(gcf,'Position',[100 100 800 600],'PaperPositionMode','auto')
@@ -905,7 +911,7 @@ set(gca,'FontSize',8)
 cb = colorbar();
 
 
-%% actual plotting data | TFA timecourse
+%% actual plotting data | TFA timecourse | central stimuli
 % plotting parameters
 % pl.elec2plot = {'Oz';'Iz'};
 % pl.elec2plot = {'PO3';'PO4';'POz';'O1';'O2';'Oz';'I1';'I2';'Iz'}; sav.chan_add = 'VisualLarge';
@@ -924,55 +930,56 @@ pl.xlims_i = dsearchn(TFA.time', pl.xlims');
 pl.base = F.TFA.baseline;
 pl.base_i = dsearchn(TFA.time', pl.base');
 
-pl.sub2plot = F.Subs2use;
-% pl.sub2plot = [7];
+% pl.sub2plot = find(F.Subs2use<22); % luminance offset
+pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
 
 pl.data_ind = []; pl.data_evo = []; pl.data_ind_bc = []; pl.data_evo_bc = [];
-pl.conlabel = {'attend RDK1';'attend RDK2'};
-pl.RDKlabel = {'RDK1';'RDK2';'RDK3'};
+pl.RDKlabel = {'RDK1';'RDK2'};
+pl.RDKidx = [1 2];
 pl.timelabel = cellfun(@(x) vararg2str(x),TFA.ffttimewin(pl.time2plot),'UniformOutput',false);
 
 
 % extract data
 for i_sub = 1:numel(pl.sub2plot)
-    t.fidx = cell2mat(arrayfun(@(x) dsearchn(TFA.frequency', x+pl.freqrange'),[TFA.RDK(i_sub).RDK.freq],'UniformOutput',false));
-    pl.freqlabel = TFA.frequency(t.fidx(1,1):t.fidx(2,1))-TFA.RDK(i_sub).RDK(1).freq;
+    t.fidx = cell2mat(arrayfun(@(x) dsearchn(TFA.frequency', x+pl.freqrange'),[TFA.RDK(pl.sub2plot(i_sub)).RDK(pl.RDKidx).freq],'UniformOutput',false));
+    pl.freqlabel = TFA.frequency(t.fidx(1,1):t.fidx(2,1))-TFA.RDK(pl.sub2plot(i_sub)).RDK(1).freq;
     for i_RDK = 1:size(t.fidx,2)
         % raw
         pl.data_ind(:,:,:,i_RDK,i_sub) = ...
-            squeeze(mean(TFA.data_ind(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.xlims_i(1):pl.xlims_i(2),pl.elec2plot_i,:,i_sub),3));
+            squeeze(mean(TFA.data_ind(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.xlims_i(1):pl.xlims_i(2),pl.elec2plot_i,:,pl.sub2plot(i_sub)),3));
         pl.data_evo(:,:,:,i_RDK,i_sub) = ...
-            squeeze(mean(TFA.data_evo(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.xlims_i(1):pl.xlims_i(2),pl.elec2plot_i,:,i_sub),3));
+            squeeze(mean(TFA.data_evo(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.xlims_i(1):pl.xlims_i(2),pl.elec2plot_i,:,pl.sub2plot(i_sub)),3));
         % baseline corrected
         pl.data_ind_bc(:,:,:,i_RDK,i_sub) = ...
             100*(bsxfun(@rdivide, pl.data_ind(:,:,:,i_RDK,i_sub), ...
-            mean(squeeze(mean(TFA.data_ind(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,i_sub),3)),2))-1);
+            mean(squeeze(mean(TFA.data_ind(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,pl.sub2plot(i_sub)),3)),2))-1);
         pl.data_evo_bc(:,:,:,i_RDK,i_sub) = ...
             100*(bsxfun(@rdivide, pl.data_evo(:,:,:,i_RDK,i_sub), ...
-            mean(squeeze(mean(TFA.data_evo(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,i_sub),3)),2))-1);
+            mean(squeeze(mean(TFA.data_evo(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,pl.sub2plot(i_sub)),3)),2))-1);
     end   
 end
 
 % collapse across RDKs
-t.data = pl.data_ind(:,:,:,1,:); t.data(:,:,:,:,:,2)= pl.data_ind(:,:,[2 1],2,:);
+t.conidxRDK1 = [1:6]; t.conidxRDK2 = [2 1 4 3 6 5];
+t.data = pl.data_ind(:,:,t.conidxRDK1,1,:); t.data(:,:,:,:,:,2)= pl.data_ind(:,:,t.conidxRDK2,2,:);
 pl.data_ind_coll = squeeze(mean(t.data,6));
-pl.data_ind_coll(:,:,3,:)=mean(pl.data_ind(:,:,:,3,:),3);
-t.data = pl.data_evo(:,:,:,1,:); t.data(:,:,:,:,:,2)= pl.data_evo(:,:,[2 1],2,:);
+t.data = pl.data_evo(:,:,t.conidxRDK1,1,:); t.data(:,:,:,:,:,2)= pl.data_evo(:,:,t.conidxRDK2,2,:);
 pl.data_evo_coll = squeeze(mean(t.data,6));
-pl.data_evo_coll(:,:,3,:)=mean(pl.data_evo(:,:,:,3,:),3);
-t.data = pl.data_ind_bc(:,:,:,1,:); t.data(:,:,:,:,:,2)= pl.data_ind_bc(:,:,[2 1],2,:);
+t.data = pl.data_ind_bc(:,:,t.conidxRDK1,1,:); t.data(:,:,:,:,:,2)= pl.data_ind_bc(:,:,t.conidxRDK2,2,:);
 pl.data_ind_bc_coll = squeeze(mean(t.data,6));
-pl.data_ind_bc_coll(:,:,3,:)=mean(pl.data_ind_bc(:,:,:,3,:),3);
-t.data = pl.data_evo_bc(:,:,:,1,:); t.data(:,:,:,:,:,2)= pl.data_evo_bc(:,:,[2 1],2,:);
+t.data = pl.data_evo_bc(:,:,t.conidxRDK1,1,:); t.data(:,:,:,:,:,2)= pl.data_evo_bc(:,:,t.conidxRDK1,2,:);
 pl.data_evo_bc_coll = squeeze(mean(t.data,6));
-pl.data_evo_bc_coll(:,:,3,:)=mean(pl.data_evo_bc(:,:,:,3,:),3);
-pl.conlabel2 = {'attended';'unattended';'irrelevant'};
 
 
 % raw
-pl.data = mean(pl.data_ind_coll,4);
-pl.clims1=[0 1].*squeeze(max(max(pl.data)));
-pl.clims1=[0 1].*repmat(max(max(max(pl.data))),3,1);
+pl.conunique = unique(F.conRDKcolattended_label(:,1));
+pl.data = nan([size(pl.data_ind_coll,[1 2]),numel(pl.conunique)]);
+for i_con = 1:numel(pl.conunique)
+    t.idx = strcmpi(F.conRDKcolattended_label(:,1),pl.conunique{i_con});
+    pl.data(:,:,i_con) = mean(pl.data_ind_coll(:,:,t.idx,:),[3,4]);
+end
+
+pl.clims1=[0 1].*repmat(max(pl.data,[],"all"),numel(pl.conunique),1);
 figure;
 set(gcf,'Position',[100 100 1500 600],'PaperPositionMode','auto')
 for i_con = 1:size(pl.data,3)
@@ -981,7 +988,7 @@ for i_con = 1:size(pl.data,3)
     colormap(gca, fake_parula) % magma, viridis, plasma, parula, fake_parula, jet, inferno, cbrewer2('RdBu'),flipud(cbrewer2('RdBu'))
     set(gca,'YDir','normal')
     if i_con == 1
-        title(sprintf('TFA-amplitude | raw | induced | %s\n for channel [%s]',pl.conlabel2{i_con}, vararg2str(pl.elec2plot)), ...
+        title(sprintf('TFA-amplitude | raw | induced | %s\n for channel [%s]',pl.conunique{i_con}, vararg2str(pl.elec2plot)), ...
             'FontSize',8,'Interpreter','none')
     end
     
@@ -990,7 +997,7 @@ for i_con = 1:size(pl.data,3)
     else
         xlabel('time in ms')
     end
-    ylabel({pl.conlabel2{i_con};'delta f_R_D_K in Hz'})
+    ylabel({pl.conunique{i_con};'delta f_R_D_K in Hz'})
     xlim(pl.xlims)
     set(gca,'FontSize',8)
     % set(gca,'ColorScale','log')

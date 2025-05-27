@@ -219,7 +219,7 @@ if MeanFlag
         EEG.setname=[exp_name '-Mean-C' int2str(i_cond)];
         EEG=pop_saveset(EEG,'filename',[EEG.setname '.set'], 'filepath', mean_path);
     end
-    TrialsAveraged; % Anzahl der übrigen Trials
+    TrialsAveraged; % Anzahl der Ã¼brigen Trials
     save([path 'EEG\Dokumentation\TrialsAveraged_conditionmeans.mat'],'TrialsAveraged')
     clear('EEG')
 end

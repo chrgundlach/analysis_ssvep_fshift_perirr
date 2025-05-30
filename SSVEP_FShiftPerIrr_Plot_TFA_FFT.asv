@@ -1294,12 +1294,7 @@ pl.conunique = unique(F.conRDKcolattended_label2(F.conRDKpresent & repmat([false
 [pl.data_ind_coll pl.data_evo_coll pl.data_ind_bc_coll pl.data_evo_bc_coll] = deal(nan([size( pl.data_ind,1) numel(pl.conunique) numel(pl.RDKidx) numel(pl.sub2plot)]));
 for i_con = 1:numel(pl.conunique)
     for i_rdk = 1:numel(pl.RDKidx)
-        % index condition
-        t.cidx = strcmp(F.conRDKcolattended_label2(:,pl.RDKidx(i_rdk)),pl.conunique{i_con});
-        % induced
-        pl.data_ind_coll(:,i_con,i_rdk,:) = mean(pl.data_ind(:,t.cidx,i_rdk,:),2);
-
-        %%%%% carry on here
+        
     end
 end
 

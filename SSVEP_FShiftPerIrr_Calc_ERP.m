@@ -63,8 +63,8 @@ for i_sub = 1:numel(F.sub2use)
     %% do csd transform
     if F.CSD_flag==1
         if  i_sub == 1 % calculate CSD matrix
-%             CSD.chanmat=ExtractMontage('C:\Users\psy05cvd\Dropbox\work\matlab\software\toolboxes\CSD\resource\10-5-System_Mastoids_EGI129.csd',{EEG.chanlocs.labels}');
-            CSD.chanmat=ExtractMontage('C:\Users\EEG\Documents\MATLAB\christopher\general_functions\CSD\resource\10-5-System_Mastoids_EGI129.csd',{EEG.chanlocs.labels}');
+            CSD.chanmat=ExtractMontage('C:\Users\psy05cvd\Dropbox\work\matlab\software\toolboxes\CSD\resource\10-5-System_Mastoids_EGI129.csd',{EEG.chanlocs.labels}');
+%             CSD.chanmat=ExtractMontage('C:\Users\EEG\Documents\MATLAB\christopher\general_functions\CSD\resource\10-5-System_Mastoids_EGI129.csd',{EEG.chanlocs.labels}');
             [CSD.G,CSD.H] = GetGH(CSD.chanmat);
         end
         fprintf(1,['\' ...
@@ -75,6 +75,30 @@ for i_sub = 1:numel(F.sub2use)
         end
     end
     % pop_eegplot(EEG,1,1,1)
+
+    %% %% do csd transform and check for head scaling
+    EEG1 = EEG;
+    EEG2 = EEG;
+    if F.CSD_flag==1
+        if  i_sub == 1 % calculate CSD matrix
+            CSD.chanmat=ExtractMontage('C:\Users\psy05cvd\Dropbox\work\matlab\software\toolboxes\CSD\resource\10-5-System_Mastoids_EGI129.csd',{EEG.chanlocs.labels}');
+%             CSD.chanmat=ExtractMontage('C:\Users\EEG\Documents\MATLAB\christopher\general_functions\CSD\resource\10-5-System_Mastoids_EGI129.csd',{EEG.chanlocs.labels}');
+            [CSD.G,CSD.H] = GetGH(CSD.chanmat);
+        end
+        fprintf(1,['\' ...
+            'n###\ncalculating CSD transform\n###\n'])
+        for i_tr = 1:EEG.trials
+            % csd of raw data
+            EEG1.data(:,:,i_tr)= CSDTransform(EEG1.data(:,:,i_tr), CSD.G, CSD.H,1.0e-5);
+            EEG2.data(:,:,i_tr)= CSDTransform(EEG2.data(:,:,i_tr), CSD.G, CSD.H,1.0e-5,100);
+        end
+    end
+    % pop_eegplot(EEG,1,1,1)
+    % pop_eegplot(EEG2,1,1,1)
+    % figure; plot(EEG.times,EEG.data(29,:,1)); hold on; plot(EEG.times,EEG2.data(29,:,1)); plot(EEG.times,EEG2.data(29,:,1)*5);
+    t.scale = EEG.data(29,:,1)./EEG2.data(29,:,1); median(t.scale); figure; plot(t.scale)
+    t.scale = EEG.data./EEG2.data(29,:,1); median(t.scale(:))
+    figure; histogram(t.scale,10000)
 
     %% additional calculation and conditiona allocation
     % raw (for FFT)

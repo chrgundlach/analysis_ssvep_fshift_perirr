@@ -34,7 +34,7 @@ F.CSD_flag              = 1; % 0 = no; 1 = yes
 
 F.FFT_timewins          = {[-1 0]; [0.5 1.5]; [1 2]};
 % F.FFT_freqres           = 16384;
-s
+
 
 
 %% start processing

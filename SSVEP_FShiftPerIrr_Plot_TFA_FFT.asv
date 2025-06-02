@@ -1195,6 +1195,7 @@ g(1,1)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(1,1).stat_summary('type','sem');
 g(1,1).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
 g(1,1).set_title('amplitudes of raw collapsed SSVEPs (induced analysis)');
+g(1,1).axe_property('YLim',[4 6]);
 
 
 pl.data = nan([size(pl.data_evo_coll,[1 3]),numel(pl.conunique)]);
@@ -1207,6 +1208,7 @@ g(2,1)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(2,1).stat_summary('type','sem');
 g(2,1).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
 g(2,1).set_title('amplitudes of raw collapsed SSVEPs (evoked analysis)');
+g(2,1).axe_property('YLim',[1 2.5]);
 
 pl.data = nan([size(pl.data_ind_bc_coll,[1 3]),numel(pl.conunique)]);
 for i_con = 1:numel(pl.conunique)
@@ -1218,6 +1220,7 @@ g(1,2)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(1,2).stat_summary('type','sem');
 g(1,2).set_names('x','time in ms','y','modulation in %','color','RDK');
 g(1,2).set_title('modulations of collapsed SSVEPs from baseline (induced analysis)');
+g(1,2).axe_property('YLim',[-5 5]);
 
 pl.data = nan([size(pl.data_evo_bc_coll,[1 3]),numel(pl.conunique)]);
 for i_con = 1:numel(pl.conunique)
@@ -1229,6 +1232,7 @@ g(2,2)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(2,2).stat_summary('type','sem');
 g(2,2).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
 g(2,2).set_title('modulations of collapsed SSVEPs from baseline (evoked analysis)');
+g(2,2).axe_property('YLim',[-20 40]);
 
 % g.stat_boxplot();
 g.set_text_options('base_size',8,'Interpreter','Tex');
@@ -1294,76 +1298,105 @@ pl.conunique = unique(F.conRDKcolattended_label2(F.conRDKpresent & repmat([false
 [pl.data_ind_coll pl.data_evo_coll pl.data_ind_bc_coll pl.data_evo_bc_coll] = deal(nan([size( pl.data_ind,1) numel(pl.conunique) numel(pl.RDKidx) numel(pl.sub2plot)]));
 for i_con = 1:numel(pl.conunique)
     for i_rdk = 1:numel(pl.RDKidx)
-        
+        % index condition
+        t.cidx = strcmp(F.conRDKcolattended_label2(:,pl.RDKidx(i_rdk)),pl.conunique{i_con});
+        % induced
+        pl.data_ind_coll(:,i_con,i_rdk,:) = mean(pl.data_ind(:,t.cidx,i_rdk,:),2);
+        % evoked
+        pl.data_evo_coll(:,i_con,i_rdk,:) = mean(pl.data_evo(:,t.cidx,i_rdk,:),2);
+        % induced bc
+        pl.data_ind_bc_coll(:,i_con,i_rdk,:) = mean(pl.data_ind_bc(:,t.cidx,i_rdk,:),2);
+        % evoked bc
+        pl.data_evo_bc_coll(:,i_con,i_rdk,:) = mean(pl.data_evo_bc(:,t.cidx,i_rdk,:),2);
     end
 end
 
-
-
-% collapse across RDKs
-t.conidxRDK1 = [1:6]; t.conidxRDK2 = [2 1 4 3 6 5];
-t.data = pl.data_ind(:,t.conidxRDK1,1,:); t.data(:,:,:,:,2)= pl.data_ind(:,t.conidxRDK2,2,:);
-pl.data_ind_coll = squeeze(mean(t.data,5));
-t.data = pl.data_evo(:,t.conidxRDK1,1,:); t.data(:,:,:,:,2)= pl.data_evo(:,t.conidxRDK2,2,:);
-pl.data_evo_coll = squeeze(mean(t.data,5));
-t.data = pl.data_ind_bc(:,t.conidxRDK1,1,:); t.data(:,:,:,:,2)= pl.data_ind_bc(:,t.conidxRDK2,2,:);
-pl.data_ind_bc_coll = squeeze(mean(t.data,5));
-t.data = pl.data_evo_bc(:,t.conidxRDK1,1,:); t.data(:,:,:,:,2)= pl.data_evo_bc(:,t.conidxRDK2,2,:);
-pl.data_evo_bc_coll = squeeze(mean(t.data,5));
+% average across RDKs
+pl.data_ind_coll=squeeze(mean(pl.data_ind_coll,3,"omitnan"));
+pl.data_evo_coll=squeeze(mean(pl.data_evo_coll,3,"omitnan"));
+pl.data_ind_bc_coll=squeeze(mean(pl.data_ind_bc_coll,3,"omitnan"));
+pl.data_evo_bc_coll=squeeze(mean(pl.data_evo_bc_coll,3,"omitnan"));
 
 
 
-% actual plotting
-pl.conunique = unique(F.conRDKcolattended_label(:,1));
-pl.data = nan([size(pl.data_ind_coll,[1 3]),numel(pl.conunique)]);
-for i_con = 1:numel(pl.conunique)
-    t.idx = strcmpi(F.conRDKcolattended_label(:,1),pl.conunique{i_con});
-    pl.data(:,:,i_con) = mean(pl.data_ind_coll(:,t.idx,:),[2]);
-end
-
-pl.data = pl.data(:);
-pl.cons = permute(repmat(pl.conunique',[size(pl.data_ind_coll,1),1,size(pl.data_ind_coll,3)]),[1,3,2]); pl.cons = pl.cons(:);
-pl.times = repmat(TFA.time(pl.xlims_i(1):pl.xlims_i(2))',[1 numel(pl.sub2plot) numel(pl.conunique)]); pl.times = pl.times(:);
+pl.data = pl.data_ind_coll(:);
+pl.cons = repmat(pl.conunique',[size(pl.data_ind_coll,1),1,size(pl.data_ind_coll,3)]); pl.cons = pl.cons(:);
+pl.times = repmat(TFA.time(pl.xlims_i(1):pl.xlims_i(2))',[1  numel(pl.conunique) numel(pl.sub2plot)]); pl.times = pl.times(:);
 
 clear g
 g(1,1)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(1,1).stat_summary('type','sem');
 g(1,1).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
 g(1,1).set_title('amplitudes of raw collapsed SSVEPs (induced analysis)');
+g(1,1).axe_property('YLim',[5 8]);
 
-
-pl.data = nan([size(pl.data_evo_coll,[1 3]),numel(pl.conunique)]);
-for i_con = 1:numel(pl.conunique)
-    t.idx = strcmpi(F.conRDKcolattended_label(:,1),pl.conunique{i_con});
-    pl.data(:,:,i_con) = mean(pl.data_evo_coll(:,t.idx,:),[2]);
-end
-pl.data = pl.data(:);
+pl.data = pl.data_evo_coll(:);
 g(2,1)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(2,1).stat_summary('type','sem');
 g(2,1).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
 g(2,1).set_title('amplitudes of raw collapsed SSVEPs (evoked analysis)');
+g(2,1).axe_property('YLim',[1 2.5]);
 
-pl.data = nan([size(pl.data_ind_bc_coll,[1 3]),numel(pl.conunique)]);
-for i_con = 1:numel(pl.conunique)
-    t.idx = strcmpi(F.conRDKcolattended_label(:,1),pl.conunique{i_con});
-    pl.data(:,:,i_con) = mean(pl.data_ind_bc_coll(:,t.idx,:),[2]);
-end
-pl.data = pl.data(:);
+pl.data = pl.data_ind_bc_coll(:);
 g(1,2)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(1,2).stat_summary('type','sem');
 g(1,2).set_names('x','time in ms','y','modulation in %','color','RDK');
 g(1,2).set_title('modulations of collapsed SSVEPs from baseline (induced analysis)');
+g(1,2).axe_property('YLim',[-15 5]);
 
-pl.data = nan([size(pl.data_evo_bc_coll,[1 3]),numel(pl.conunique)]);
-for i_con = 1:numel(pl.conunique)
-    t.idx = strcmpi(F.conRDKcolattended_label(:,1),pl.conunique{i_con});
-    pl.data(:,:,i_con) = mean(pl.data_evo_bc_coll(:,t.idx,:),[2]);
-end
-pl.data = pl.data(:);
+pl.data = pl.data_evo_bc_coll(:);
 g(2,2)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(2,2).stat_summary('type','sem');
 g(2,2).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
 g(2,2).set_title('modulations of collapsed SSVEPs from baseline (evoked analysis)');
+g(2,2).axe_property('YLim',[-25 25]);
+
+% g.stat_boxplot();
+g.set_text_options('base_size',8,'Interpreter','Tex');
+g.axe_property('YGrid','on','Box','on');
+figure('Position',[100 100 1600 700]);
+g.draw();
+
+
+% average across conditions
+pl.conunique2 = {'attended';'irrelevant';'unattended'}
+pl.data_ind_coll2=mean(pl.data_ind_coll(:,1:2,:),2); pl.data_ind_coll2(:,2,:)=mean(pl.data_ind_coll(:,3:4,:),2); pl.data_ind_coll2(:,3,:)=mean(pl.data_ind_coll(:,5:6,:),2);
+pl.data_evo_coll2=mean(pl.data_ind_coll(:,1:2,:),2); pl.data_evo_coll2(:,2,:)=mean(pl.data_ind_coll(:,3:4,:),2); pl.data_evo_coll2(:,3,:)=mean(pl.data_ind_coll(:,5:6,:),2);
+pl.data_ind_bc_coll2=mean(pl.data_ind_coll(:,1:2,:),2); pl.data_ind_bc_coll2(:,2,:)=mean(pl.data_ind_coll(:,3:4,:),2); pl.data_ind_bc_coll2(:,3,:)=mean(pl.data_ind_coll(:,5:6,:),2);
+pl.data_ind_coll2=mean(pl.data_ind_coll(:,1:2,:),2); pl.data_ind_coll2(:,2,:)=mean(pl.data_ind_coll(:,3:4,:),2); pl.data_ind_coll2(:,3,:)=mean(pl.data_ind_coll(:,5:6,:),2);
+
+
+pl.data = pl.data_ind_coll(:);
+pl.cons = repmat(pl.conunique',[size(pl.data_ind_coll,1),1,size(pl.data_ind_coll,3)]); pl.cons = pl.cons(:);
+pl.times = repmat(TFA.time(pl.xlims_i(1):pl.xlims_i(2))',[1  numel(pl.conunique) numel(pl.sub2plot)]); pl.times = pl.times(:);
+
+clear g
+g(1,1)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
+g(1,1).stat_summary('type','sem');
+g(1,1).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
+g(1,1).set_title('amplitudes of raw collapsed SSVEPs (induced analysis)');
+g(1,1).axe_property('YLim',[5 8]);
+
+pl.data = pl.data_evo_coll(:);
+g(2,1)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
+g(2,1).stat_summary('type','sem');
+g(2,1).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
+g(2,1).set_title('amplitudes of raw collapsed SSVEPs (evoked analysis)');
+g(2,1).axe_property('YLim',[1 2.5]);
+
+pl.data = pl.data_ind_bc_coll(:);
+g(1,2)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
+g(1,2).stat_summary('type','sem');
+g(1,2).set_names('x','time in ms','y','modulation in %','color','RDK');
+g(1,2).set_title('modulations of collapsed SSVEPs from baseline (induced analysis)');
+g(1,2).axe_property('YLim',[-15 5]);
+
+pl.data = pl.data_evo_bc_coll(:);
+g(2,2)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
+g(2,2).stat_summary('type','sem');
+g(2,2).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
+g(2,2).set_title('modulations of collapsed SSVEPs from baseline (evoked analysis)');
+g(2,2).axe_property('YLim',[-25 25]);
 
 % g.stat_boxplot();
 g.set_text_options('base_size',8,'Interpreter','Tex');

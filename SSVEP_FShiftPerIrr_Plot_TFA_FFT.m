@@ -102,6 +102,7 @@ pl.pcorrect = [0 abs(log10([0.5 0.25 0.1 0.05 0.01 0.001 0.0001 0.00001]))];
 %% plot electrode head
 % pl.elec2plot = {'C3';'CP3'};
 pl.elec2plot = {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'P8';'P10';'PO4';'PO8';'O2';'I2'};
+pl.elec2plot = {'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'};
 % pl.elec2plot = {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'};
 % pl.elec2plot = {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'};
 % pl.elec2plot = {'POz';'O1';'Oz';'I2';'Iz'};
@@ -1127,7 +1128,7 @@ pl.elec2plot_i=logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels}
 
 pl.freqrange=[-0.1 0.1];
 
-pl.xlims=[-500 1800]; % index time 2 plot
+pl.xlims=[-1000 1800]; % index time 2 plot
 pl.xlims_i = dsearchn(TFA.time', pl.xlims');
 
 pl.base = F.TFA.baseline;
@@ -1286,11 +1287,12 @@ pl.elec2plot_i=cellfun(@(y) ...
 
 pl.freqrange=[-0.1 0.1];
 
-pl.xlims=[-500 1800]; % index time 2 plot
+pl.xlims=[-1000 1800]; % index time 2 plot
 pl.xlims_i = dsearchn(TFA.time', pl.xlims');
 
 pl.base = F.TFA.baseline;
-% pl.base = [-500 -0];
+% pl.base = [-1000 -0];
+pl.base = [-750 -250];
 pl.base_i = dsearchn(TFA.time', pl.base');
 
 % pl.sub2plot = find(F.Subs2use<22); % luminance offset
@@ -1358,14 +1360,14 @@ pl.times = repmat(TFA.time(pl.xlims_i(1):pl.xlims_i(2))',[1  numel(pl.conunique)
 clear g
 g(1,1)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(1,1).stat_summary('type','sem');
-g(1,1).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
+g(1,1).set_names('x','time in ms','y','amplitude in \muV/m²','color','RDK');
 g(1,1).set_title('amplitudes of raw collapsed SSVEPs (induced analysis)');
 g(1,1).axe_property('YLim',[5 8]);
 
 pl.data = pl.data_evo_coll(:);
 g(2,1)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(2,1).stat_summary('type','sem');
-g(2,1).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
+g(2,1).set_names('x','time in ms','y','amplitude in \muV/m²','color','RDK');
 g(2,1).set_title('amplitudes of raw collapsed SSVEPs (evoked analysis)');
 g(2,1).axe_property('YLim',[1 2.5]);
 
@@ -1379,7 +1381,7 @@ g(1,2).axe_property('YLim',[-15 5]);
 pl.data = pl.data_evo_bc_coll(:);
 g(2,2)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(2,2).stat_summary('type','sem');
-g(2,2).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
+g(2,2).set_names('x','time in ms','y','amplitude modulation in %','color','RDK');
 g(2,2).set_title('modulations of collapsed SSVEPs from baseline (evoked analysis)');
 g(2,2).axe_property('YLim',[-25 25]);
 
@@ -1393,7 +1395,7 @@ clear g
 pl.data = pl.data_evo_coll(:);
 g(1,1)=gramm('x',pl.times,'y',pl.data,'color',pl.cons);
 g(1,1).stat_summary('type','sem');
-g(1,1).set_names('x','time in ms','y','amplitude in \muV','color','RDK');
+g(1,1).set_names('x','time in ms','y','amplitude modulation in %','color','RDK');
 g(1,1).set_title('amplitudes of raw collapsed SSVEPs (evoked analysis)');
 g(1,1).axe_property('YLim',[1 2.5]);
 
@@ -1413,7 +1415,7 @@ g.draw();
 
 
 % average across conditions
-pl.conunique2 = {'attended';'irrelevant';'unattended'}
+pl.conunique2 = {'attended';'irrelevant';'unattended'};
 pl.data_ind_coll2=mean(pl.data_ind_coll(:,1:2,:),2); pl.data_ind_coll2(:,2,:)=mean(pl.data_ind_coll(:,3:4,:),2); pl.data_ind_coll2(:,3,:)=mean(pl.data_ind_coll(:,5:6,:),2);
 pl.data_evo_coll2=mean(pl.data_evo_coll(:,1:2,:),2); pl.data_evo_coll2(:,2,:)=mean(pl.data_evo_coll(:,3:4,:),2); pl.data_evo_coll2(:,3,:)=mean(pl.data_evo_coll(:,5:6,:),2);
 pl.data_ind_bc_coll2=mean(pl.data_ind_bc_coll(:,1:2,:),2); pl.data_ind_bc_coll2(:,2,:)=mean(pl.data_ind_bc_coll(:,3:4,:),2); pl.data_ind_bc_coll2(:,3,:)=mean(pl.data_ind_bc_coll(:,5:6,:),2);
@@ -1479,7 +1481,394 @@ g.set_text_options('base_size',8,'Interpreter','Tex');
 g.axe_property('YGrid','on','Box','on');
 figure('Position',[100 100 700 700]);
 g.draw();
+%% calculate everything with running t-tests ans cluster correction | central
+% plotting parameters
+% pl.elec2plot = {'Oz';'Iz'};
+% pl.elec2plot = {'PO3';'PO4';'POz';'O1';'O2';'Oz';'I1';'I2';'Iz'}; sav.chan_add = 'VisualLarge';
+% pl.elec2plot = {'P9';'P10';'PO7';'PO8';'PO3';'PO4';'POz';'O1';'O2';'Oz';'I1';'I2';'Iz'}; sav.chan_add = 'VisualLarge';% vis alpha II
+pl.elec2plot = {'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}; sav.chan_add = 'VisualLarge';
+% cluster analysis
+% pl.elec2plot = {TFA.electrodes(1:64).labels}';
+% pl.elec2plot_i=logical(sum(cell2mat(cellfun(@(x) startsWith({TFA(1).electrodes.labels},x), pl.elec2plot, 'UniformOutput',false)),1));
+pl.elec2plot_i=logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), pl.elec2plot, 'UniformOutput',false)),1));
+
+pl.freqrange=[-0.1 0.1];
+
+pl.xlims=[-1000 1800]; % index time 2 plot
+pl.xlims_i = dsearchn(TFA.time', pl.xlims');
+
+pl.base = F.TFA.baseline;
+% pl.base = [-500 -0];
+pl.base_i = dsearchn(TFA.time', pl.base');
+
+% pl.sub2plot = find(F.Subs2use<22); % luminance offset
+pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
+
+pl.concols = num2cell([255 133 133; 25 25 255]'./255,1);
+
+pl.data_ind = []; pl.data_evo = []; pl.data_ind_bc = []; pl.data_evo_bc = [];
+pl.RDKlabel = {'RDK1';'RDK2'};
+pl.RDKidx = [1 2];
+
+% extract data
+for i_sub = 1:numel(pl.sub2plot)
+    t.fidx = cell2mat(arrayfun(@(x) dsearchn(TFA.frequency', x+pl.freqrange'),[TFA.RDK(pl.sub2plot(i_sub)).RDK(pl.RDKidx).freq],'UniformOutput',false));
+    pl.freqlabel = TFA.frequency(t.fidx(1,1):t.fidx(2,1))-TFA.RDK(pl.sub2plot(i_sub)).RDK(1).freq;
+    for i_RDK = 1:size(t.fidx,2)
+        % raw
+        pl.data_ind(:,:,i_RDK,i_sub) = ...
+            squeeze(mean(TFA.data_ind(t.fidx(1,i_RDK):t.fidx(2,i_RDK),:,pl.elec2plot_i,:,pl.sub2plot(i_sub)),[3,1]));
+        pl.data_evo(:,:,i_RDK,i_sub) = ...
+            squeeze(mean(TFA.data_evo(t.fidx(1,i_RDK):t.fidx(2,i_RDK),:,pl.elec2plot_i,:,pl.sub2plot(i_sub)),[3,1]));
+        % baseline corrected
+        pl.data_ind_bc(:,:,i_RDK,i_sub) = ...
+            100*(...
+            bsxfun(@rdivide, pl.data_ind(:,:,i_RDK,i_sub), ...
+            squeeze(mean(TFA.data_ind(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,pl.sub2plot(i_sub)),[3,1,2]))')...
+            -1);
+        pl.data_evo_bc(:,:,i_RDK,i_sub) = ...
+            100*(...
+            bsxfun(@rdivide, pl.data_evo(:,:,i_RDK,i_sub), ...
+            squeeze(mean(TFA.data_evo(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.base_i(1):pl.base_i(2),pl.elec2plot_i,:,pl.sub2plot(i_sub)),[3,1,2]))')...
+            -1);
+    end
+end
+
+% collapse across RDKs
+t.conidxRDK1 = [1:6]; t.conidxRDK2 = [2 1 4 3 6 5];
+t.data = pl.data_ind(:,t.conidxRDK1,1,:); t.data(:,:,:,:,2)= pl.data_ind(:,t.conidxRDK2,2,:);
+pl.data_ind_coll = squeeze(mean(t.data,5));
+t.data = pl.data_evo(:,t.conidxRDK1,1,:); t.data(:,:,:,:,2)= pl.data_evo(:,t.conidxRDK2,2,:);
+pl.data_evo_coll = squeeze(mean(t.data,5));
+t.data = pl.data_ind_bc(:,t.conidxRDK1,1,:); t.data(:,:,:,:,2)= pl.data_ind_bc(:,t.conidxRDK2,2,:);
+pl.data_ind_bc_coll = squeeze(mean(t.data,5));
+t.data = pl.data_evo_bc(:,t.conidxRDK1,1,:); t.data(:,:,:,:,2)= pl.data_evo_bc(:,t.conidxRDK2,2,:);
+pl.data_evo_bc_coll = squeeze(mean(t.data,5));
+
+pl.conunique = unique(F.conRDKcolattended_label(:,1));
+pl.data = nan([size(pl.data_ind_coll,[1]),numel(pl.conunique), size(pl.data_ind_coll,[3])]);
+for i_con = 1:numel(pl.conunique)
+    t.idx = strcmpi(F.conRDKcolattended_label(:,1),pl.conunique{i_con});
+    pl.data(:,i_con,:) = mean(pl.data_evo_bc_coll(:,t.idx,:),[2]);
+end
+
+% running ttests
+t.time_rt = pl.time_post;
+t.time_rt_i = dsearchn(TFA.time', t.time_rt');
+
+t.permut_n = 1000;
+clear cluster_runt timecourse_runt
+
+% run cluster correction for tests against zero
+for i_con = 1:size(pl.data,2)
+    t.data = squeeze(pl.data(t.time_rt_i(1):t.time_rt_i(2),i_con,:));
+    t.nulldata = repmat(squeeze(mean(pl.data(pl.base_i(1):pl.base_i(2),i_con,:),1))',[numel(t.time_rt_i(1):t.time_rt_i(2)),1]);
+    [cluster_runt{i_con}, timecourse_runt{i_con}]=eeg_erpStat_clusterP(t.data,t.nulldata,t.permut_n,2);
+end
+
+% run cluster correction for diffs against zero
+t.diffs = [1 2];
+for i_diff = 1:size(t.diffs,1)
+    t.data = squeeze(diff(squeeze(pl.data(t.time_rt_i(1):t.time_rt_i(2),t.diffs(i_diff,:),:)),1,2));
+    t.nulldata = repmat(diff(squeeze(mean(pl.data(pl.base_i(1):pl.base_i(2),t.diffs(i_diff,:),:),1))),[numel(t.time_rt_i(1):t.time_rt_i(2)),1]);
+    [cluster_runt{size(pl.data,2)+i_diff}, timecourse_runt{size(pl.data,2)+i_diff}]=eeg_erpStat_clusterP(t.data,t.nulldata,t.permut_n,2);
+end
+
+pl.mdata = mean(pl.data,3); % mean data
+pl.semdata = std(pl.data,1,3)./sqrt(numel(pl.sub2plot));
+
+pl.conlabel = pl.conunique;
+pl.col = pl.concols;
+pl.col2 = [0.6 0.6 0.6];
+pl.line = {'-';'-'};
+figure;
+subplot(7,1,[1:4])
+h.pl = {}; h.plsem=[];  h.plm = []; h.pls = []; h.plst = [];
+for i_con = 1:numel(pl.conlabel)
+    % data index
+    pl.idx = pl.xlims_i(1):pl.xlims_i(2);
+    
+    % plot SEM as boundary
+    % create data
+    pl.xconf = [TFA.time(pl.idx) TFA.time(pl.idx(end:-1:1))] ;
+    pl.yconf = [pl.mdata(pl.idx,i_con,:)'+pl.semdata(pl.idx,i_con,:)' ...
+        pl.mdata(pl.idx(end:-1:1),i_con,:)'-pl.semdata(pl.idx(end:-1:1),i_con,:)'];
+    % plot
+    h.plsem{i_con} = fill(pl.xconf,pl.yconf,pl.col{i_con}','EdgeColor','none','FaceAlpha',0.3);
+    hold on
+    
+    % plot mean lines    
+    h.plm{i_con}=plot(TFA.time(pl.idx), pl.mdata(pl.idx,i_con,:),'Color',pl.col{i_con},'LineStyle',pl.line{i_con},'LineWidth',2);
+    
+end
+grid on
+set(gca,'XTickLabel',[])
+xlim(pl.xlims)
+ylabel('modulation in %')
+
+% plot lines for significant effects
+pl.sign_y = 1:size(timecourse_runt,2);
+
+subplot(7,1,[5:7])
+
+for i_con = 1:numel(pl.conlabel)
+        
+    % uncorrected
+    pl.sigdata = timecourse_runt{ i_con}.h_raw.*pl.sign_y(i_con);
+    pl.sigdata(timecourse_runt{ i_con}.h_raw==0)=nan;
+    
+    h.pls{i_con}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col2,'LineWidth',6);
+    hold on
+    
+    % corrected
+    pl.sigdata = timecourse_runt{ i_con}.h_corr.*pl.sign_y(i_con);
+    pl.sigdata(timecourse_runt{ i_con}.h_corr==0)=nan;
+    
+    h.pls{i_con}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col{i_con},'LineWidth',6);
+    
+end
+
+for i_diff = 1:size(t.diffs,1)
+    t.idx = numel(pl.conlabel)+ i_diff;
+
+    % uncorrected
+    pl.sigdata = timecourse_runt{t.idx}.h_raw.*pl.sign_y(t.idx);
+    pl.sigdata(timecourse_runt{ t.idx}.h_raw==0)=nan;
+    
+    h.pls{t.idx}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col2,'LineWidth',6);
+    hold on
+    
+    % corrected
+    pl.sigdata = timecourse_runt{t.idx}.h_corr.*pl.sign_y(t.idx);
+    pl.sigdata(timecourse_runt{t.idx}.h_corr==0)=nan;
+    
+    h.pls{ t.idx}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col{t.diffs(i_diff,1)},'LineWidth',6);
+    h.pls{t.idx}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col{t.diffs(i_diff,2)},'LineWidth',3);
+    
+end
+xlabel('time in ms')
+
+legend([h.pls{1:numel(pl.conlabel)}],pl.conlabel,'Location','SouthOutside','Orientation','horizontal')
+legend('boxoff')
+
+ylim(pl.sign_y([1 end])+[-1 1])
+xlim(pl.xlims)
+
+%% calculate everything with running t-tests ans cluster correction | peripheral
+% plotting parameters
+% large center as in tango | periphery: central and lateral smaller (fits topographies)
+pl.elec2plot = {{'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'P7';'P9';'PO7';'PO4';'POz';'Oz';'O2'}, 'right'};
+% cluster analysis
+pl.elec2plot_i=cellfun(@(y) ...
+    logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
+    pl.elec2plot(:,1), 'UniformOutput', false);
+
+pl.freqrange=[-0.1 0.1];
+
+pl.xlims=[-1000 1800]; % index time 2 plot
+pl.xlims_i = dsearchn(TFA.time', pl.xlims');
+
+pl.time_post = [0 1800];
+
+pl.base = F.TFA.baseline;
+% pl.base = [-1000 -0];
+% pl.base = [-1000 -250];
+pl.base = [-750 -250];
+pl.base_i = dsearchn(TFA.time', pl.base');
+
+% pl.sub2plot = find(F.Subs2use<22); % luminance offset
+pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
+
+pl.concols = num2cell([255 133 4; 41 60 74; 25 138 131]'./255,1);
+
+pl.data_ind = []; pl.data_evo = []; pl.data_ind_bc = []; pl.data_evo_bc = [];
+pl.RDKlabel = {'RDK3';'RDK4';'RDK5'};
+pl.RDKidx = [3 4 5];
+
+% extract data
+for i_sub = 1:numel(pl.sub2plot)
+    t.fidx = cell2mat(arrayfun(@(x) dsearchn(TFA.frequency', x+pl.freqrange'),[TFA.RDK(pl.sub2plot(i_sub)).RDK(pl.RDKidx).freq],'UniformOutput',false));
+    pl.freqlabel = TFA.frequency(t.fidx(1,1):t.fidx(2,1))-TFA.RDK(pl.sub2plot(i_sub)).RDK(1).freq;
+    for i_RDK = 1:size(t.fidx,2)
+        % index side of RDK and electrode cluster
+        t.elecidx = strcmp(pl.elec2plot(:,2),TFA.RDK(pl.sub2plot(i_sub)).RDK(pl.RDKidx(i_RDK)).poslabel);
+        % raw
+        pl.data_ind(:,:,i_RDK,i_sub) = ...
+            squeeze(mean(TFA.data_ind(t.fidx(1,i_RDK):t.fidx(2,i_RDK),:,pl.elec2plot_i{t.elecidx},:,pl.sub2plot(i_sub)),[3,1]));
+        pl.data_evo(:,:,i_RDK,i_sub) = ...
+            squeeze(mean(TFA.data_evo(t.fidx(1,i_RDK):t.fidx(2,i_RDK),:,pl.elec2plot_i{t.elecidx},:,pl.sub2plot(i_sub)),[3,1]));
+        % baseline corrected
+        pl.data_ind_bc(:,:,i_RDK,i_sub) = ...
+            100*(...
+            bsxfun(@rdivide, pl.data_ind(:,:,i_RDK,i_sub), ...
+            squeeze(mean(TFA.data_ind(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.base_i(1):pl.base_i(2),pl.elec2plot_i{t.elecidx},:,pl.sub2plot(i_sub)),[3,1,2]))')...
+            -1);
+        pl.data_evo_bc(:,:,i_RDK,i_sub) = ...
+            100*(...
+            bsxfun(@rdivide, pl.data_evo(:,:,i_RDK,i_sub), ...
+            squeeze(mean(TFA.data_evo(t.fidx(1,i_RDK):t.fidx(2,i_RDK),pl.base_i(1):pl.base_i(2),pl.elec2plot_i{t.elecidx},:,pl.sub2plot(i_sub)),[3,1,2]))')...
+            -1);
+    end
+end
+% collapse across RDKs first
+pl.conunique = unique(F.conRDKcolattended_label2(F.conRDKpresent & repmat([false false true true true],size(F.conRDKcolattended_label2,1),1)));
+[pl.data_ind_coll pl.data_evo_coll pl.data_ind_bc_coll pl.data_evo_bc_coll] = deal(nan([size( pl.data_ind,1) numel(pl.conunique) numel(pl.RDKidx) numel(pl.sub2plot)]));
+for i_con = 1:numel(pl.conunique)
+    for i_rdk = 1:numel(pl.RDKidx)
+        % index condition
+        t.cidx = strcmp(F.conRDKcolattended_label2(:,pl.RDKidx(i_rdk)),pl.conunique{i_con});
+        % induced
+        pl.data_ind_coll(:,i_con,i_rdk,:) = mean(pl.data_ind(:,t.cidx,i_rdk,:),2);
+        % evoked
+        pl.data_evo_coll(:,i_con,i_rdk,:) = mean(pl.data_evo(:,t.cidx,i_rdk,:),2);
+        % induced bc
+        pl.data_ind_bc_coll(:,i_con,i_rdk,:) = mean(pl.data_ind_bc(:,t.cidx,i_rdk,:),2);
+        % evoked bc
+        pl.data_evo_bc_coll(:,i_con,i_rdk,:) = mean(pl.data_evo_bc(:,t.cidx,i_rdk,:),2);
+    end
+end
+
+% % trouble shooting
+% t.tdata = mean(pl.data_evo_bc_coll(pl.base_i(1):pl.base_i(2),:,:,:),1,"omitnan");
+% figure; histogram(t.tdata(:),50)
+
+% average across RDKs
+pl.data_ind_coll=squeeze(mean(pl.data_ind_coll,3,"omitnan"));
+pl.data_evo_coll=squeeze(mean(pl.data_evo_coll,3,"omitnan"));
+pl.data_ind_bc_coll=squeeze(mean(pl.data_ind_bc_coll,3,"omitnan"));
+pl.data_evo_bc_coll=squeeze(mean(pl.data_evo_bc_coll,3,"omitnan"));
+
+% % trouble shooting
+% t.tdata = mean(pl.data_evo_bc_coll(pl.base_i(1):pl.base_i(2),:,:,:),1,"omitnan");
+% figure; histogram(t.tdata(:),50)
+
+% average across conditions
+pl.conunique2 = {'attended';'irrelevant';'unattended'};
+pl.data_ind_coll2=mean(pl.data_ind_coll(:,1:2,:),2); pl.data_ind_coll2(:,2,:)=mean(pl.data_ind_coll(:,3:4,:),2); pl.data_ind_coll2(:,3,:)=mean(pl.data_ind_coll(:,5:6,:),2);
+pl.data_evo_coll2=mean(pl.data_evo_coll(:,1:2,:),2); pl.data_evo_coll2(:,2,:)=mean(pl.data_evo_coll(:,3:4,:),2); pl.data_evo_coll2(:,3,:)=mean(pl.data_evo_coll(:,5:6,:),2);
+pl.data_ind_bc_coll2=mean(pl.data_ind_bc_coll(:,1:2,:),2); pl.data_ind_bc_coll2(:,2,:)=mean(pl.data_ind_bc_coll(:,3:4,:),2); pl.data_ind_bc_coll2(:,3,:)=mean(pl.data_ind_bc_coll(:,5:6,:),2);
+pl.data_evo_bc_coll2=mean(pl.data_evo_bc_coll(:,1:2,:),2); pl.data_evo_bc_coll2(:,2,:)=mean(pl.data_evo_bc_coll(:,3:4,:),2); pl.data_evo_bc_coll2(:,3,:)=mean(pl.data_evo_bc_coll(:,5:6,:),2);
+
+% % trouble shooting
+% t.tdata = mean(pl.data_evo_bc_coll2(pl.base_i(1):pl.base_i(2),:,:,:),1,"omitnan");
+% figure; histogram(t.tdata(:),50)
 
 
+% running ttests
+t.time_rt = pl.time_post;
+t.time_rt_i = dsearchn(TFA.time', t.time_rt');
 
+t.permut_n = 1000;
+clear cluster_runt timecourse_runt
 
+% for baseline corrected collapsed data
+pl.data = pl.data_evo_bc_coll2;
+
+% % for baseline corrected collapsed data - induced data
+% pl.data = bsxfun(@minus, pl.data_evo_bc_coll, mean(pl.data_ind_bc_coll,[2 3]));
+
+% run cluster correction for tests against zero
+for i_con = 1:size(pl.data,2)
+    t.data = squeeze(pl.data(t.time_rt_i(1):t.time_rt_i(2),i_con,:));
+    t.nulldata = repmat(squeeze(mean(pl.data(pl.base_i(1):pl.base_i(2),i_con,:),1))',[numel(t.time_rt_i(1):t.time_rt_i(2)),1]);
+    [cluster_runt{i_con}, timecourse_runt{i_con}]=eeg_erpStat_clusterP(t.data,t.nulldata,t.permut_n,2);
+end
+
+% run cluster correction for diffs against zero
+t.diffs = [1 2; 1 3; 2 3];
+for i_diff = 1:size(t.diffs,1)
+    t.data = squeeze(diff(squeeze(pl.data(t.time_rt_i(1):t.time_rt_i(2),t.diffs(i_diff,:),:)),1,2));
+    t.nulldata = repmat(diff(squeeze(mean(pl.data(pl.base_i(1):pl.base_i(2),t.diffs(i_diff,:),:),1))),[numel(t.time_rt_i(1):t.time_rt_i(2)),1]);
+    [cluster_runt{size(pl.data,2)+i_diff}, timecourse_runt{size(pl.data,2)+i_diff}]=eeg_erpStat_clusterP(t.data,t.nulldata,t.permut_n,2);
+end
+
+pl.mdata = mean(pl.data,3); % mean data
+pl.semdata = std(pl.data,1,3)./sqrt(numel(pl.sub2plot));
+
+pl.conlabel = pl.conunique2;
+pl.col = pl.concols;
+pl.col2 = [0.6 0.6 0.6];
+pl.line = {'-';'-';'-'};
+figure;
+subplot(7,1,[1:4])
+h.pl = {}; h.plsem=[];  h.plm = []; h.pls = []; h.plst = [];
+for i_con = 1:numel(pl.conlabel)
+    % data index
+    pl.idx = pl.xlims_i(1):pl.xlims_i(2);
+    
+    % plot SEM as boundary
+    % create data
+    pl.xconf = [TFA.time(pl.idx) TFA.time(pl.idx(end:-1:1))] ;
+    pl.yconf = [pl.mdata(pl.idx,i_con,:)'+pl.semdata(pl.idx,i_con,:)' ...
+        pl.mdata(pl.idx(end:-1:1),i_con,:)'-pl.semdata(pl.idx(end:-1:1),i_con,:)'];
+    % plot
+    h.plsem{i_con} = fill(pl.xconf,pl.yconf,pl.col{i_con}','EdgeColor','none','FaceAlpha',0.3);
+    hold on
+    
+    % plot mean lines    
+    h.plm{i_con}=plot(TFA.time(pl.idx), pl.mdata(pl.idx,i_con,:),'Color',pl.col{i_con},'LineStyle',pl.line{i_con},'LineWidth',2);
+    
+end
+grid on
+set(gca,'XTickLabel',[])
+xlim(pl.xlims)
+ylabel('modulation in %')
+
+% plot lines for significant effects
+pl.sign_y = 1:size(timecourse_runt,2);
+
+subplot(7,1,[5:7])
+
+for i_con = 1:numel(pl.conlabel)
+        
+    % uncorrected
+    pl.sigdata = timecourse_runt{ i_con}.h_raw.*pl.sign_y(i_con);
+    pl.sigdata(timecourse_runt{ i_con}.h_raw==0)=nan;
+    
+    h.pls{i_con}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col2,'LineWidth',6);
+    hold on
+    
+    % corrected
+    pl.sigdata = timecourse_runt{ i_con}.h_corr.*pl.sign_y(i_con);
+    pl.sigdata(timecourse_runt{ i_con}.h_corr==0)=nan;
+    
+    h.pls{i_con}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col{i_con},'LineWidth',6);
+    
+end
+
+for i_diff = 1:size(t.diffs,1)
+    t.idx = numel(pl.conlabel)+ i_diff;
+
+    % uncorrected
+    pl.sigdata = timecourse_runt{t.idx}.h_raw.*pl.sign_y(t.idx);
+    pl.sigdata(timecourse_runt{ t.idx}.h_raw==0)=nan;
+    
+    h.pls{t.idx}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col2,'LineWidth',6);
+    hold on
+    
+    % corrected
+    pl.sigdata = timecourse_runt{t.idx}.h_corr.*pl.sign_y(t.idx);
+    pl.sigdata(timecourse_runt{t.idx}.h_corr==0)=nan;
+    
+    h.pls{ t.idx}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col{t.diffs(i_diff,1)},'LineWidth',6);
+    h.pls{t.idx}=plot(TFA.time(t.time_rt_i(1):t.time_rt_i(2)), pl.sigdata,...
+        'Color',pl.col{t.diffs(i_diff,2)},'LineWidth',3);
+    
+end
+xlabel('time in ms')
+
+legend([h.pls{1:numel(pl.conlabel)}],pl.conlabel,'Location','SouthOutside','Orientation','horizontal')
+legend('boxoff')
+
+ylim(pl.sign_y([1 end])+[-1 1])
+xlim(pl.xlims)

@@ -1,7 +1,7 @@
 %% plot TFA images
 clearvars
 F.PathInEEG             = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\erp'; 
-F.PathInEEG             = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\erp'; 
+% F.PathInEEG             = 'N:\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\erp'; 
 
 F.Subs                  = arrayfun(@(x) sprintf('%02.0f',x),1:60,'UniformOutput',false)';
 F.Subs2use              = [1:13 15:41 43:52]; 
@@ -112,13 +112,17 @@ pl.con_contrast = {... % contrasts by 1st dim; averaged across second dim
 %     'evnt_type_label', {{'chroma+'}}; ...
 %     'event_response_type', {{'hit','FA','error','miss'}}; ...
     'eventtype', {{'target'};{'distractor'}}};
-pl.sub2plot = 1:numel(F.Subs2use);
-pl.sub2plot = find(F.Subs2use<22); % luminance offset
-% pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
+% pl.sub2plot = 1:numel(F.Subs2use);
+
+pl.sub2plot=[]; pl.sublabel=[];
+pl.sub2plot{1} = find(F.Subs2use<22); pl.sublabel{1} = 'luminance offset';% luminance offset
+pl.sub2plot{2} = find(F.Subs2use>21); pl.sublabel{2} = 'isoluminant';% isoluminant to background
 
 
 % pl.elec2plot = {'P8';'PO8';'P10';'P7';'PO7';'P9'}; % for P1 component lateral !
 % pl.elec2plot = {'P7';'PO7';'P9';'O1';'I1';'Oz'; 'Iz';'O2';'I2';'P8';'PO8';'P10';}; % for N2 component posterior!
+% pl.elec2plot = {'PO7';'O1';'I1';'Oz'; 'Iz';'O2';'I2';'PO8';'PO3';'POz';'PO4'}; % for N2 component posterior! more central
+% pl.elec2plot = {'PO7';'O1';'I1';'Oz'; 'Iz';'O2';'I2';'PO8'}; % for N2 component posterior! more central
 pl.elec2plot = {'P3';'P1';'Pz';'P4';'P2';'POz';'PO3';'PO4'}; % for P300 component centro-parietal!
 % pl.elec2plot = {'POz';'Oz';'O1';'O2';'Iz'}; % for N1 component centro-parietal
 % pl.elec2plot = {'P6';'P8';'PO8';'P10';'P5';'P7';'PO7';'P9'}; % for N2 component lateral
@@ -126,7 +130,9 @@ pl.elec2plot = {'P3';'P1';'Pz';'P4';'P2';'POz';'PO3';'PO4'}; % for P300 componen
 % pl.elec2plot = {'CPz';'Cz'}; % early N2 SN?
 % pl.elec2plot = {'FCz';'Fz'}; % early frontal?
 
-pl.con_label = {'target'; 'distractor'};
+pl.ylim = [-6 25];
+
+% pl.con_label = {'target'; 'distractor'};
 
 pl.elec2plot_i = ...
     any(cell2mat(cellfun(@(x) strcmp({EP.electrodes.labels},x), pl.elec2plot, 'UniformOutput',false)),1);
@@ -137,22 +143,25 @@ pl.time2plot = [-100 900]; % time in ms
 pl.time2plot_i = dsearchn(EP.time', pl.time2plot');
 
 pl.concols = num2cell([25 138 130; 41 60 74; 241 131 26]'./255,1);
+pl.concols = num2cell(hex2rgb({'#005b8a';'#006651';'#943826'})',1);
 
+
+for i_subg = 1:2
 
 % preallocate data
 pl.dat2plot = nan([sum(pl.elec2plot_i), ...             % 1st dim channels
     size(EP.time,2), ...                                % 2nd dim time
     cellfun(@(x) size(x,1), pl.con_contrast(:,2))', ... % 3rd to n dim = levels defind in pl.con_contrast
-    numel(pl.sub2plot)]);                               % n+1 dim participants
+    numel(pl.sub2plot{i_subg})]);                               % n+1 dim participants
 
 % extract data across contrasts
 % define how to loop through contrasts
 t.cont = cellfun(@(x) 1:size(x,1), pl.con_contrast(:,2), 'UniformOutput', false);
 t.contidx = combvec(t.cont{:});
 % loop across participants
-for i_sub = 1:numel(pl.sub2plot)
-    t.behavior = EP.behavior{pl.sub2plot(i_sub)};
-    t.epdata = EP.filtdata{pl.sub2plot(i_sub)}.data;
+for i_sub = 1:numel(pl.sub2plot{i_subg})
+    t.behavior = EP.behavior{pl.sub2plot{i_subg}(i_sub)};
+    t.epdata = EP.filtdata{pl.sub2plot{i_subg}(i_sub)}.data;
 
     % loop through contrasts
     for i_cont = 1:size(t.contidx,2)
@@ -182,9 +191,10 @@ end
 
 % reshape pl.data
 pl.dat2plot_rs = squeeze(mean(pl.dat2plot,1));
+pl.dat2plot_rs(:,end+1,:)=pl.dat2plot_rs(:,1,:)-pl.dat2plot_rs(:,2,:);
 
 pl.data_m = mean(pl.dat2plot_rs,3);
-pl.data_sem = std(pl.dat2plot_rs,1,3)./sqrt(numel(pl.sub2plot));
+pl.data_sem = std(pl.dat2plot_rs,1,3)./sqrt(numel(pl.sub2plot{i_subg}));
 
 
 
@@ -208,9 +218,13 @@ for i_con = 1:size(pl.data_m,2)
         plot(EP.time(pl.idx), pl.data_m(pl.idx,i_con),'Color',pl.concols{i_con},'LineWidth',2);
 end
 xlim(pl.time2plot)
+if ~isempty(pl.ylim)
+    ylim(pl.ylim)
+end
 xlabel('time in ms')
 ylabel('amplitude in \muV/cm²')
-legend([h.plm{:}],pl.con_label,'Location','EastOutside','box','off')
+title(sprintf('N=%1.0f | %s',numel(pl.sub2plot{i_subg}), pl.sublabel{i_subg}))
+legend([h.plm{:}],[pl.con_contrast{2}{:} 'diff'],'Location','EastOutside','box','off')
 grid on
 set(gca, 'Ydir','reverse')
 
@@ -220,6 +234,7 @@ topoplot(find(pl.elec2plot_i),EP.electrodes(1:64),'style','blank','electrodes', 
     'emarker2',{find(pl.elec2plot_i),'o','r',3,1});
 
 set(gcf, 'Color', [1 1 1]);
+end
 
 %% plot ERPs exploratively for specified electrodes | event type  by between subject factor stimulus luminance 
 % adapted to run with between subject contrasts

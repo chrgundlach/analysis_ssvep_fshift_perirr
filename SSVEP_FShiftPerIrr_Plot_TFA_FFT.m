@@ -106,8 +106,8 @@ pl.elec2plot = {'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2'
 % pl.elec2plot = {'P6';'P8';'P10';'PO4';'PO8';'O2';'I2';'POz';'Oz';'Iz';'O1'};
 % pl.elec2plot = {'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'O2'};
 % pl.elec2plot = {'POz';'O1';'Oz';'I2';'Iz'};
-% pl.elec2plot = {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'};
-% pl.elec2plot = {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'};
+pl.elec2plot = {'P8';'P10';'PO8';'PO4';'POz';'Oz';'O1'};
+% pl.elec2plot = {'P7';'P9';'PO7';'PO3';'POz';'Oz';'O2'};
 
 
 figure;
@@ -140,10 +140,14 @@ pl.elec2plot = {{'P3';'P5';'P7';'P9';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P4';
     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
     {'P7';'P9';'PO7';'PO2';'POz';'Oz';'O2'}, 'right'};
 
-% large center as in tango | periphery: central and lateral 
+% large center as in tango | periphery: central and lateral  [used!!!!!]
 pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
     {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
     {'P7';'P9';'PO7';'PO4';'POz';'Oz';'O2'}, 'right'};
+
+% pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
+%     {'P8';'P10';'PO8';'PO4';'O2';'I2';'P3';'P1';'Pz';'P2';'PO3';'POz'}, 'left'; ...
+%     {'P7';'P9';'PO7';'PO3';'O1';'I1';'P4';'P2';'Pz';'P1';'PO4';'POz'}, 'right'};
 
 pl.elec2plot_i=cellfun(@(y) ...
     logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
@@ -154,10 +158,10 @@ pl.time2plot = [1];
 % pl.time2plot = [1 2 3];
 pl.sub2plot = 1:numel(F.Subs2use);
 pl.sub2plot = find(F.Subs2use<22); % luminance offset
-pl.freq2plot=F.SSVEP_Freqs{1}(1);
+pl.freq2plot=F.SSVEP_Freqs{1}(4);
 
 pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
-pl.freq2plot=F.SSVEP_Freqs{2}(4);
+pl.freq2plot=F.SSVEP_Freqs{2}(1);
 
 % extract data
 pl.data_ind = nan(size(TFA.fftdata_ind,1), numel(pl.sub2plot)); pl.data_evo = pl.data_ind;
@@ -202,6 +206,7 @@ plot(TFA.fftfreqs,mean(pl.data_evo,2),'Color','k','LineWidth',2)
 xlim([0 50])
 xlabel('frequency in Hz')
 ylabel('amplitude in \muV/m²')
+ylim([0 7])
 title(sprintf('evoked GrandMean FFT spectra | N = %1.0f | FOI = %1.1f Hz', ...
     numel(pl.sub2plot), pl.freq2plot),'Interpreter','none')
 vline(pl.freq2plot,'k:')
@@ -1494,17 +1499,22 @@ pl.elec2plot_i=logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels}
 
 pl.freqrange=[-0.1 0.1];
 
+pl.time_post = [0 1800];
+
 pl.xlims=[-1000 1800]; % index time 2 plot
 pl.xlims_i = dsearchn(TFA.time', pl.xlims');
+
+pl.ylims = [-20 40];
 
 pl.base = F.TFA.baseline;
 % pl.base = [-500 -0];
 pl.base_i = dsearchn(TFA.time', pl.base');
 
-% pl.sub2plot = find(F.Subs2use<22); % luminance offset
-pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
+pl.sub2plot = find(F.Subs2use<22); % luminance offset
+% pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
 
 pl.concols = num2cell([255 133 133; 25 25 255]'./255,1);
+pl.concols = num2cell(hex2rgb(["#F03F3F","#5CACEE"])',1);
 
 pl.data_ind = []; pl.data_evo = []; pl.data_ind_bc = []; pl.data_evo_bc = [];
 pl.RDKlabel = {'RDK1';'RDK2'};
@@ -1556,7 +1566,7 @@ end
 t.time_rt = pl.time_post;
 t.time_rt_i = dsearchn(TFA.time', t.time_rt');
 
-t.permut_n = 1000;
+t.permut_n = 5000;
 clear cluster_runt timecourse_runt
 
 % run cluster correction for tests against zero
@@ -1604,6 +1614,9 @@ end
 grid on
 set(gca,'XTickLabel',[])
 xlim(pl.xlims)
+if ~isempty(pl.ylims)
+    ylim(pl.ylims)
+end
 ylabel('modulation in %')
 
 % plot lines for significant effects

@@ -752,6 +752,9 @@ pl.RDK.data_evo_bc = 100*(bsxfun(@rdivide, pl.RDK.data_evo, pl.RDK.data_evo(:,:,
 pl.RDK.data_ind_bc_sub = bsxfun(@minus,  pl.RDK.data_ind, pl.RDK.data_ind(:,:,1,:));
 pl.RDK.data_evo_bc_sub = bsxfun(@minus, pl.RDK.data_evo, pl.RDK.data_evo(:,:,1,:));
 
+% remove grand mean induced data [it is all exploratory]
+pl.RDK.data_evo_bc = bsxfun(@minus, pl.RDK.data_evo_bc, mean(pl.RDK.data_ind_bc, [2,4]) );
+
 % % trouble shooting do subtraction and modulation correspond?
 % % pl.tdata = reshape(squeeze(pl.RDK.data_evo_bc(1:2,:,2,:)),[],size(pl.RDK.data_evo_bc,4));
 % % pl.tdata(:,:,2) = reshape(squeeze(pl.RDK.data_evo_bc_sub(1:2,:,2,:)),[],size(pl.RDK.data_evo_bc,4)).*10;
@@ -807,7 +810,7 @@ R_Mat.all = [{'amplitude_induced','amplitude_evoked','modulation_induced','modul
 R_Mat.all_table = cell2table(R_Mat.all(2:end,:), "VariableNames",R_Mat.all(1,:));
 
 
-t.path = 'C:\Users\psy05cvd\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
+t.path = 'C:\Dropboxdata\Dropbox\work\R-statistics\experiments\ssvep_fshiftperirr\data_in';
 % t.path = 'C:\Users\EEG\Documents\R\Christopher\analysis_R_ssvep_fshift_perirr\data_in';
 t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % write to textfile
@@ -821,6 +824,7 @@ t.datestr = datestr(now,'mm-dd-yyyy_HH-MM');
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_TangoStudyPeriOnlyLateral_%s.csv',t.datestr)),'Delimiter',';')
 
 % writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_CenterTangoStudyPeriSmall_%s.csv',t.datestr)),'Delimiter',';')
+% writetable(R_Mat.all_table,fullfile(t.path,sprintf('FFT_Amp_data_CenterTangoStudyPeriSmall_indremov_%s.csv',t.datestr)),'Delimiter',';')
 
 
 %% actual plotting data | TFA Grand Mean timecourse
@@ -1510,8 +1514,8 @@ pl.base = F.TFA.baseline;
 % pl.base = [-500 -0];
 pl.base_i = dsearchn(TFA.time', pl.base');
 
-pl.sub2plot = find(F.Subs2use<22); % luminance offset
-% pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
+% pl.sub2plot = find(F.Subs2use<22); % luminance offset
+pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
 
 pl.concols = num2cell([255 133 133; 25 25 255]'./255,1);
 pl.concols = num2cell(hex2rgb(["#F03F3F","#5CACEE"])',1);
@@ -1561,6 +1565,22 @@ for i_con = 1:numel(pl.conunique)
     t.idx = strcmpi(F.conRDKcolattended_label(:,1),pl.conunique{i_con});
     pl.data(:,i_con,:) = mean(pl.data_evo_bc_coll(:,t.idx,:),[2]);
 end
+
+% extract onset values with cusum method
+t.time_rt = pl.time_post;
+t.time_rt_i = dsearchn(TFA.time', t.time_rt');
+pl.testdata = pl.data_evo(t.time_rt_i(1):t.time_rt_i(2),:,:,:);
+pl.basedata = pl.data_evo(pl.base_i(1):pl.base_i(2),:,:,:);
+pl.rdkfreqs = cell2mat(arrayfun(@(x) [TFA.RDK(x).RDK(1:2).freq]',pl.sub2plot,'UniformOutput',false))';
+[onset] = eeg_GaborStatOnsetCuSum(pl.testdata,pl.basedata, ...
+    'datadims',{'time','cons','RDK','subs'}, ...
+    'conlabels',F.conRDKcolattended_label(:,1:2), ...
+    'rdkfreqs',pl.rdkfreqs, ...
+    'timevec',TFA.time(t.time_rt_i(1):t.time_rt_i(2)));
+
+
+
+
 
 % running ttests
 t.time_rt = pl.time_post;
@@ -1692,7 +1712,8 @@ pl.time_post = [0 1800];
 pl.base = F.TFA.baseline;
 % pl.base = [-1000 -0];
 % pl.base = [-1000 -250];
-pl.base = [-750 -250];
+% pl.base = [-500 -250];
+% pl.base = [-250 0];
 pl.base_i = dsearchn(TFA.time', pl.base');
 
 % pl.sub2plot = find(F.Subs2use<22); % luminance offset

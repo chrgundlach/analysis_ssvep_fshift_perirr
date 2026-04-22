@@ -96,7 +96,7 @@ bootsampleidx = reshape(randsample(size(data,4),size(data,4)*nbootsamples,true),
 % loop across bootsamples
 [bs.zdatacusum bs.zdata bs.zdatacusum_shuffle bs.zdata_shuffle]=deal(nan([size(data) nbootsamples]));
 
-% h_wait = waitbar(0, '...extracting bootatrap samples...');  
+h_wait = waitbar(0, '...extracting bootatrap samples...');  
 for i_bs = 1:nbootsamples
     % t.progress = (i_bs / nbootsamples);
     % waitbar( t.progress, h_wait, sprintf('...extracting bootatrap samples...Progress: %d%%', round( t.progress * 100)));

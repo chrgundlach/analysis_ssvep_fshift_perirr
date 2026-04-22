@@ -1,0 +1,108 @@
+% setup the design matrix for the flexible factorial design
+
+
+% TIME X ATTENTION X LUMINANCE
+p.datapath      =  '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\EEG\SPM\spmconvdata_freqaveraged\';
+t.files         = dir(sprintf('%s*.nii',p.datapath));
+p.subs          = unique(regexp({t.files.name}, 'VP\d+', 'match', 'once'));
+p.subnum        = str2num(cell2mat(unique(regexp({t.files.name}, '\d+', 'match', 'once'))'));
+p.subidx        = 1:numel(p.subs);
+p.attention     = {'_attended';'_unattended'};
+p.times         = {'_t0_1000';'_t1500_2500'};
+p.luminance     = {'offset';'isoluminant'};
+p.lumidx        = ones(numel(p.subnum),1); p.lumidx(p.subnum>21) = 2;
+
+% write out data
+designmat = nan([numel(t.files), 4]);
+t.subs = 1:numel(p.subs);
+
+for i_file = 1:numel(t.files)
+    designmat(i_file, 1) = t.subs(strcmp(regexp(t.files(i_file).name, 'VP\d+', 'match', 'once'), p.subs)); % which participant
+    designmat(i_file, 2) = find(strcmp(p.times, regexp(t.files(i_file).name, '_t0_1000|_t1500_2500', 'match', 'once'))); % time condition
+    designmat(i_file, 3) = find(strcmp(p.attention, regexp(t.files(i_file).name, '_attended|_unattended', 'match', 'once'))); % attention condition
+    designmat(i_file, 4) = p.lumidx(designmat(i_file, 1)); % luminance condition
+end
+
+%% Only for post-cue time window
+% ATTENTION X LUMINANCE
+p.datapath      =  '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\EEG\SPM\spmconvdata_freqaveraged\';
+t.files         = dir(sprintf('%s*_t1500_2500*.nii',p.datapath));
+p.subs          = unique(regexp({t.files.name}, 'VP\d+', 'match', 'once'));
+p.subnum        = str2num(cell2mat(unique(regexp({t.files.name}, '\d+', 'match', 'once'))'));
+p.subidx        = 1:numel(p.subs);
+p.attention     = {'_attended';'_unattended'};
+p.luminance     = {'offset';'isoluminant'};
+p.lumidx        = ones(numel(p.subnum),1); p.lumidx(p.subnum>21) = 2;
+
+% write out data
+designmat = nan([numel(t.files), 3]);
+t.subs = 1:numel(p.subs);
+
+for i_file = 1:numel(t.files)
+    designmat(i_file, 1) = t.subs(strcmp(regexp(t.files(i_file).name, 'VP\d+', 'match', 'once'), p.subs)); % which participant
+    designmat(i_file, 2) = find(strcmp(p.attention, regexp(t.files(i_file).name, '_attended|_unattended', 'match', 'once'))); % attention condition
+    designmat(i_file, 3) = p.lumidx(designmat(i_file, 1)); % luminance condition
+end
+
+%% Only for post-cue time window & only 26 Hz (only frequency used in both experiments)
+% ATTENTION X LUMINANCE
+p.datapath      =  '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\SPM\spmconvdata\';
+t.files         = dir(sprintf('%s*26Hz*_t1500_2500*.nii',p.datapath));
+p.subs          = unique(regexp({t.files.name}, 'VP\d+', 'match', 'once'));
+p.subnum        = str2num(cell2mat(unique(regexp({t.files.name}, '\d+', 'match', 'once'))'));
+p.subidx        = 1:numel(p.subs);
+p.attention     = {'_attended';'_unattended'};
+p.luminance     = {'offset';'isoluminant'};
+p.lumidx        = ones(numel(p.subnum),1); p.lumidx(p.subnum>21) = 2;
+
+% write out data
+designmat = nan([numel(t.files), 3]);
+t.subs = 1:numel(p.subs);
+
+for i_file = 1:numel(t.files)
+    designmat(i_file, 1) = t.subs(strcmp(regexp(t.files(i_file).name, 'VP\d+', 'match', 'once'), p.subs)); % which participant
+    designmat(i_file, 2) = find(strcmp(p.attention, regexp(t.files(i_file).name, '_attended|_unattended', 'match', 'once'))); % attention condition
+    designmat(i_file, 3) = p.lumidx(designmat(i_file, 1)); % luminance condition
+end
+
+%% Only for isoluminant stimuli
+% TIME X ATTENTION
+p.datapath      =  '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\EEG\SPM\spmconvdata_freqaveraged\';
+t.filesall      = dir(sprintf('%s*.nii',p.datapath));
+t.files         = t.filesall(str2num(cell2mat(regexp({t.files.name}, '\d+', 'match', 'once')'))>21);
+p.subs          = unique(regexp({t.files.name}, 'VP\d+', 'match', 'once'));
+p.subnum        = str2num(cell2mat(unique(regexp({t.files.name}, '\d+', 'match', 'once'))'));
+p.subidx        = 1:numel(p.subs);
+p.attention     = {'_attended';'_unattended'};
+p.times         = {'_t0_1000';'_t1500_2500'};
+p.luminance     = {'offset';'isoluminant'};
+p.lumidx        = ones(numel(p.subnum),1); p.lumidx(p.subnum>21) = 2;
+
+% write out data
+designmat = nan([numel(t.files), 3]);
+t.subs = 1:numel(p.subs);
+
+for i_file = 1:numel(t.files)
+    designmat(i_file, 1) = t.subs(strcmp(regexp(t.files(i_file).name, 'VP\d+', 'match', 'once'), p.subs)); % which participant
+    designmat(i_file, 2) = find(strcmp(p.times, regexp(t.files(i_file).name, '_t0_1000|_t1500_2500', 'match', 'once'))); % time condition
+    designmat(i_file, 3) = find(strcmp(p.attention, regexp(t.files(i_file).name, '_attended|_unattended', 'match', 'once'))); % attention condition
+end
+
+%% Only for pre-cue time window & only 26 Hz & attention averaged (only frequency used in both experiments)
+% ATTENTION X LUMINANCE
+p.datapath      =  '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data\2024_FShiftPerIrr\eeg\SPM\spmconvdata_attavereraged\';
+t.files         = dir(sprintf('%s*26Hz*_t0_*.nii',p.datapath));
+p.subs          = unique(regexp({t.files.name}, 'VP\d+', 'match', 'once'));
+p.subnum        = str2num(cell2mat(unique(regexp({t.files.name}, '\d+', 'match', 'once'))'));
+p.subidx        = 1:numel(p.subs);
+p.luminance     = {'offset';'isoluminant'};
+p.lumidx        = ones(numel(p.subnum),1); p.lumidx(p.subnum>21) = 2;
+
+% write out data
+designmat = nan([numel(t.files), 2]);
+t.subs = 1:numel(p.subs);
+
+for i_file = 1:numel(t.files)
+    designmat(i_file, 1) = t.subs(strcmp(regexp(t.files(i_file).name, 'VP\d+', 'match', 'once'), p.subs)); % which participant
+    designmat(i_file, 2) = p.lumidx(designmat(i_file, 1)); % luminance condition
+end

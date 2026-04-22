@@ -160,8 +160,8 @@ pl.sub2plot = 1:numel(F.Subs2use);
 pl.sub2plot = find(F.Subs2use<22); % luminance offset
 pl.freq2plot=F.SSVEP_Freqs{1}(4);
 
-pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
-pl.freq2plot=F.SSVEP_Freqs{2}(1);
+% pl.sub2plot = find(F.Subs2use>21); % isoluminant to background
+% pl.freq2plot=F.SSVEP_Freqs{2}(3);
 
 % extract data
 pl.data_ind = nan(size(TFA.fftdata_ind,1), numel(pl.sub2plot)); pl.data_evo = pl.data_ind;
@@ -217,19 +217,45 @@ h.a1 = axes('position',[0.72 0.28 0.15 0.15],'Visible','off');
 topoplot(find(any(cell2mat(pl.elec2plot_i))),TFA(1).electrodes(1:64),'style','blank','electrodes', 'on','whitebk','on',...
     'emarker2',{find(any(cell2mat(pl.elec2plot_i(any(t.elidx,2))),1)),'o','r',4,1});
 
+% onlay evoked
+figure;
+set(gcf,'Position',[100 100 400 200],'PaperPositionMode','auto')
+hold on
+plot(TFA.fftfreqs,pl.data_evo,'Color',[0.5 0.5 0.5],'LineWidth',1)
+plot(TFA.fftfreqs,mean(pl.data_evo,2),'Color','k','LineWidth',2)
+xlim([0 35])
+xlabel('frequency in Hz')
+ylabel('amplitude in \muV/m²')
+ylim([0 6])
+title(sprintf('evoked GrandMean FFT spectra | N = %1.0f | FOI = %1.1f Hz', ...
+    numel(pl.sub2plot), pl.freq2plot),'Interpreter','none')
+vline(pl.freq2plot,'k:')
+box on
 
-any(t.elidx,2)
-
+% any(t.elidx,2)
+pl.figname = sprintf('SSVEP_GrandMeanSpectraBaseline_%1.0fHz.pdf',pl.freq2plot);
+pl.figname = sprintf('SSVEP_GrandMeanSpectraBaseline_%1.0fHz_lowxlim.pdf',pl.freq2plot);
+% exportgraphics(gcf,fullfile('images',pl.figname),'ContentType','vector')
 %% plot Grand Mean FFT data | topoplot for positions (as frequencies are random)
 pl.time2plot = [1:3];
 pl.time2plot = [1];
-% pl.pos2plot='center';
-pl.pos2plot='right';
+pl.pos2plot='center';
+% pl.pos2plot='right';
 % pl.pos2plot='left';
 pl.freqrange=[-0.1 0.1];
+pl.freq2plot = 26;
+% pl.freq2plot = [];
 pl.sub2sel = 1:numel(F.Subs2use);
 % pl.sub2sel = find(F.Subs2use<22); % luminance offset
 pl.sub2sel = find(F.Subs2use>21); % isoluminant to background
+
+% large center as in tango | periphery: central and lateral  [used!!!!!]
+pl.elec2plot = {{'P5';'PO3';'PO7';'O1';'I1';'POz';'Oz';'Iz';'P6';'PO4';'PO8';'O2';'I2'}, 'center';...
+    {'P8';'P10';'PO8';'PO3';'POz';'Oz';'O1'}, 'left'; ...
+    {'P7';'P9';'PO7';'PO4';'POz';'Oz';'O2'}, 'right'};
+pl.elec2plot_i=cellfun(@(y) ...
+    logical(sum(cell2mat(cellfun(@(x) strcmpi({TFA.electrodes.labels},x), y, 'UniformOutput',false)),1)),...
+    pl.elec2plot(:,1), 'UniformOutput', false);
 
 
 pl.sub2plot = pl.sub2sel( ...
@@ -249,8 +275,10 @@ for i_sub = 1:numel(pl.sub2sel)
         t.freq = TFA.RDK(pl.sub2sel(i_sub)).RDK(i_rdk).freq; % which SSVEP frequency?
         t.idx = dsearchn(TFA.fftfreqs',(pl.freqrange+t.freq)');
         % extract data
-        t.data_ind(:,i_rdk,:,i_sub) = squeeze(mean(TFA.fftdata_ind(t.idx(1):t.idx(2),:,:,pl.time2plot,pl.sub2sel(i_sub)),[1 4]));
-        t.data_evo(:,i_rdk,:,i_sub) = squeeze(mean(TFA.fftdata_evo(t.idx(1):t.idx(2),:,:,pl.time2plot,pl.sub2sel(i_sub)),[1 4]));
+        if isempty(pl.freq2plot) | any(ismember(pl.freq2plot,t.freq))
+            t.data_ind(:,i_rdk,:,i_sub) = squeeze(mean(TFA.fftdata_ind(t.idx(1):t.idx(2),:,:,pl.time2plot,pl.sub2sel(i_sub)),[1 4]));
+            t.data_evo(:,i_rdk,:,i_sub) = squeeze(mean(TFA.fftdata_evo(t.idx(1):t.idx(2),:,:,pl.time2plot,pl.sub2sel(i_sub)),[1 4]));
+        end
         
         % write some data
         t.data_freq(:,i_rdk,:,i_sub) = t.freq;
@@ -291,6 +319,27 @@ title(sprintf('evoked SSVEP amps at %s\nN = %1.0f | [%1.0f %1.0f]ms', ...
     pl.pos2plot, sum(~isnan(pl.data_ind(1,:))), min([TFA.ffttimewin{pl.time2plot}])*1000, max([TFA.ffttimewin{pl.time2plot}])*1000))
 colorbar
 
+% only evoked
+figure;
+set(gcf,'Position',[100 100 300 300],'PaperPositionMode','auto')
+pl.mdata = mean(pl.data_evo,2,'omitnan');
+pl.clim = [0 max(pl.mdata)];
+% pl.clim = [0 1.632];
+t.elidx = strcmp(pl.elec2plot(:,2), pl.pos2plot);
+topoplot(pl.mdata, TFA.electrodes(1:64), ...
+    'numcontour', 0, 'maplimits',pl.clim,'conv','on','colormap',fake_parula,...
+    'whitebk','on', ...
+    'emarker2',{find(any(cell2mat(pl.elec2plot_i(any(t.elidx,2))),1)),'o','r',4,1});
+title(sprintf('evoked SSVEP amps at %s\nN = %1.0f | [%1.0f %1.0f]ms', ...
+    pl.pos2plot, sum(~isnan(pl.data_ind(1,:))), min([TFA.ffttimewin{pl.time2plot}])*1000, max([TFA.ffttimewin{pl.time2plot}])*1000))
+colormap(cbrewer2("YlGnBu"))
+colorbar
+
+
+pl.figname = sprintf('SSVEP_GrandMeanTopoBaseline_%s.pdf',pl.pos2plot);
+pl.figname2 = sprintf('SSVEP_GrandMeanTopoBaseline_%s.png',pl.pos2plot);
+% exportgraphics(gcf,fullfile('images',pl.figname),'ContentType','vector')
+% exportgraphics(gcf,fullfile('images',pl.figname2),'ContentType','image','resolution',600)
 
 %% plot FFT data modulation | topoplot effects on central stimuli
 pl.time_base = 1;
@@ -372,7 +421,17 @@ set(gcf,'Position',[100 100 800 500],'PaperPositionMode','auto')
 pl.conlabel = [F.conRDKcolattended_label(1:2) 'diff'];
 
 % modulations
-s
+for i_con = 1:size(t.data_evo_coll_bc_m,2)
+    h.s(i_con) = subplot(2,size(t.data_evo_coll_bc_m,2),i_con);
+    pl.clim = [-1 1] *max(abs(t.data_evo_coll_bc_m),[],'all');
+    topoplot(t.data_evo_coll_bc_m(:,i_con), TFA.electrodes(1:64), ...
+        'shading', 'interp', 'numcontour', 0, 'maplimits',pl.clim,'conv','off','colormap',flipud(cbrewer2('RdBu')),...
+        'whitebk','on');
+    title(sprintf('evoked SSVEP mod | %s\n[%1.0f %1.0f]ms', ...
+        pl.conlabel{i_con}, TFA.ffttimewin{pl.time2plot}*1000))
+    colorbar
+end
+
 
 % uncorrected t-values
 for i_con = 1:size(t.data_evo_coll_ttp,2)
@@ -1572,11 +1631,11 @@ t.time_rt_i = dsearchn(TFA.time', t.time_rt');
 pl.testdata = pl.data_evo(t.time_rt_i(1):t.time_rt_i(2),:,:,:);
 pl.basedata = pl.data_evo(pl.base_i(1):pl.base_i(2),:,:,:);
 pl.rdkfreqs = cell2mat(arrayfun(@(x) [TFA.RDK(x).RDK(1:2).freq]',pl.sub2plot,'UniformOutput',false))';
-[onset] = eeg_GaborStatOnsetCuSum(pl.testdata,pl.basedata, ...
-    'datadims',{'time','cons','RDK','subs'}, ...
-    'conlabels',F.conRDKcolattended_label(:,1:2), ...
-    'rdkfreqs',pl.rdkfreqs, ...
-    'timevec',TFA.time(t.time_rt_i(1):t.time_rt_i(2)));
+% [onset] = eeg_GaborStatOnsetCuSum(pl.testdata,pl.basedata, ...
+%     'datadims',{'time','cons','RDK','subs'}, ...
+%     'conlabels',F.conRDKcolattended_label(:,1:2), ...
+%     'rdkfreqs',pl.rdkfreqs, ...
+%     'timevec',TFA.time(t.time_rt_i(1):t.time_rt_i(2)));
 
 
 
@@ -1612,6 +1671,7 @@ pl.col = pl.concols;
 pl.col2 = [0.6 0.6 0.6];
 pl.line = {'-';'-'};
 figure;
+set(gcf,'Position',[100 100 500 350],'PaperPositionMode','auto')
 subplot(7,1,[1:4])
 h.pl = {}; h.plsem=[];  h.plm = []; h.pls = []; h.plst = [];
 for i_con = 1:numel(pl.conlabel)

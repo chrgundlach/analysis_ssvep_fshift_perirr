@@ -174,6 +174,36 @@ for i_group = 1:numel(p.subsets)
         p.subset_label{i_group},pl.coldata);
 end
 
+% Display the average CIE LAB values (only for center)
+fprintf('Average CIE L*a*b values:\n');
+for i_group = 1:numel(p.subsets)
+    for i_pos = 1
+        for i_col = 1:3
+            pl.coldata = [squeeze(pl.data_avg(i_col,i_group,i_pos, :)) squeeze(pl.data_sd(i_col,i_group,i_pos, :))]';
+            fprintf('%s | %s | %s: L = %1.3f(%1.3f), a = %1.3f(%1.3f), b = %1.3f(%1.3f)\n', ...
+                p.subset_label{i_group},pl.pos{i_pos},p.colnames{i_col}, ...
+                pl.coldata);
+        end
+    end
+    pl.coldata = [squeeze(pl.data_avg_lab_bcgr(i_group, :)) squeeze(pl.data_sd_lab_bcgr(i_group, :))]';
+    fprintf('%s | background: L = %1.3f(%1.3f), a = %1.3f(%1.3f), b = %1.3f(%1.3f)\n', ...
+        p.subset_label{i_group},pl.coldata);
+end
+
+
+% plot colorwheels
+pl.cw_flag = 1
+if pl.cw_flag == 1
+    %% plot colorwheel for central offsetcolor
+    fprintf('\n#### isoluminant colors ####\n')
+    plot_colorwheel(squeeze(pl.data_avg_rgb(:,1,1,:)),'ColorSpace','propixxrgb',...
+        'LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+    fprintf('\n#### colors with luminance offset ####\n')
+    plot_colorwheel(squeeze(pl.data_avg_rgb(:,2,1,:)),'ColorSpace','propixxrgb',...
+        'LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+
+end
+
 
 % display three dimensional data
 % figure
@@ -184,6 +214,21 @@ end
 % PlotRings(gamut);
 % figure;
 % PlotVolume(gamut);
+
+%% plot colorwheels
+% plot_colorwheel([0 1 0; 0 0.4 1; 1 0.4 0],'ColorSpace','propixxrgb',...
+%     'SavePath','C:\Users\psy05cvd\Dropbox\work\matlab\AnalyzerUni\SSVEP_FShiftBase\figures',...
+%     'LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100)
+% 
+plot_colorwheel([0 1 0; 0 0.4 1; 1 0.4 0],'ColorSpace','propixxrgb',...
+    'LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+% plot_colorwheel([0    0.0580    0.1451;     0.0941    0.0376         0;          0    0.0784         0],'ColorSpace','propixxrgb',...
+%     'LAB_L',50,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100,'disp_LAB_vals',true)
+
+% plot_colorwheel([0 1 0; 0 0.4 1; 1 0.4 0],'ColorSpace','propixxrgb',...
+%     'SavePath','C:\Users\psy05cvd\Dropbox\work\matlab\AnalyzerUni\SSVEP_FShiftBase\figures',...
+%     'LAB_L',75,'NumSegments',60,'AlphaColWheel',1,'LumBackground',100)
+
 
 %%
 % figure;

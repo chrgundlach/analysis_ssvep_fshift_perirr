@@ -8,6 +8,7 @@ F.PathIn            = '\\smbone.dom.uni-leipzig.de\FFL\AllgPsy\experimental_data
 F.subjects          = cellfun(@(x) sprintf('%02.0f',x),num2cell(1:60),'UniformOutput', false)';
 % F.subs2use          = [9 10 11 12];%
 F.subs2use          = [1:13 15:52];
+F.subs2use          = [22:41 43:52];
 F.con2an            ={[10 ]; ... %RDK1 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
                     [20 ]; ... %RDK2 attended; RDK1 and RDK2 colors in periphery peri attended + unattended
                     [30 ]; ... %RDK1 attended; RDK1 and RDK3 colors in periphery peri attended + irrelevant
